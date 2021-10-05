@@ -7,7 +7,7 @@ function App() {
   function clear() {
     var elements = document.getElementsByTagName("input");
     for (var i = 0; i < elements.length; i++) {
-      if (elements[i].type == "text") {
+      if (elements[i].type === "text") {
         elements[i].value = "";
       }
     }
