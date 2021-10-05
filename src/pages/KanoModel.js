@@ -22,6 +22,8 @@ function KanoModel() {
             <div className="function-explanation">
                 <h2>Kano model</h2>
                 <p>Now you can classify the features into the Kano model, for that, just drag the features to the kano model. After that, you can download it.</p>
+                <img className="center" src="https://assets.justinmind.com/wp-content/uploads/2017/07/kano-model-for-product-managers-evaluation-table.png" alt="Kano model example" />
+                    <br />
                 <div className="right-buttons">
                     <button className="btn btn-primary">Download</button>
                     &nbsp;

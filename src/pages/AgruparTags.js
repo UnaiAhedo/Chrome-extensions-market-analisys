@@ -23,6 +23,8 @@ function AgruparTags() {
                 <div>
                     <h2>Tags aggrupation</h2>
                     <p>Select the desired tags, click on "Group" and put them a name. With this, you will group the tags associated to the extensions, into features. Once you finish grouping all the desired tags, click on "Next". The tags that you don't group won't be saved.</p>
+                    <img className="center" src="https://media.nngroup.com/media/editor/2012/11/18/wordle-word-cloud-applications.png" alt="Tags cloud example" />
+                    <br />
                     <div className="right-buttons">
                         <button className="btn btn-primary">Group</button>
                         &nbsp;
