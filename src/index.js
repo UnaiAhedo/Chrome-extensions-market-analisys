@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import './style/index.css';
+import App from './pages/App';
 import reportWebVitals from './reportWebVitals';
-import SeleccionarWebs from './SeleccionarWebs';
+import SeleccionarWebs from './pages/SeleccionarWebs';
+import AgruparTags from './pages/AgruparTags';
+import KanoModel from './pages/KanoModel';
 import { BrowserRouter, Route } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
-import AgruparTags from './AgruparTags';
-import KanoModel from './KanoModel';
-import './App.css';
+import './style/App.css';
 
 ReactDOM.render(
   <BrowserRouter>

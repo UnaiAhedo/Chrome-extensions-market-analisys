@@ -30,7 +30,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "generate": "npx node src/create-pdf.js"
+    "generate": "npx node src/scripts/create-pdf.js"
   },
   "eslintConfig": {
     "extends": [
