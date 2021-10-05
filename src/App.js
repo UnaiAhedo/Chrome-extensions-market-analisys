@@ -19,7 +19,6 @@ function App() {
     var why = document.getElementById("why").value;
     var what = document.getElementById("what").value;
     var where = document.getElementById("where").value;
-    arguments;
   }
 
   return (
