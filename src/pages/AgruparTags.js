@@ -22,14 +22,15 @@ function AgruparTags() {
             <div className="function-explanation">
                 <div>
                     <h2>Tags aggrupation</h2>
-                    <p>Select the desired tags, click on "Group" and put them a name. With this, you will group the tags associated to the extensions, into features. Once you finish grouping all the desired tags, click on "Next".</p>
+                    <p>Select the desired tags, click on "Group" and put them a name. With this, you will group the tags associated to the extensions, into features. Once you finish grouping all the desired tags, click on "Next". The tags that you don't group won't be saved.</p>
                     <div className="right-buttons">
-                        <button className="btn btn-primary">Clear</button>
+                        <button className="btn btn-primary">Group</button>
                         &nbsp;
-                        <button className="btn btn-primary">Search</button>
+                        <Link to="/seleccionarWebs"><button className="btn btn-primary">Back</button></Link>
+                        &nbsp;
+                        <Link to="/kanoModel"><button className="btn btn-primary">Next</button></Link>
                     </div>
                 </div>
-                <Link to="/kanoModel">up</Link>
                 <div>
                     <h2>Current aggrupation</h2>
                     <p>You can delete an aggrupation selecting it and clicking on "Delete".</p>

@@ -25,6 +25,8 @@ function KanoModel() {
                 <div className="right-buttons">
                     <button className="btn btn-primary">Download</button>
                     &nbsp;
+                    <Link to="/agruparTags"><button className="btn btn-primary">Back</button></Link>
+                    &nbsp;
                     <Link to="/"><button className="btn btn-primary">Home</button></Link>
                 </div>
             </div>

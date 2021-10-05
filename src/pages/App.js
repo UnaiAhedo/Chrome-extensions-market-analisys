@@ -11,6 +11,7 @@ function App() {
         elements[i].value = "";
       }
     }
+    document.getElementById("prueba").innerText = '';
   }
 
   function searchWebs() {
@@ -19,6 +20,9 @@ function App() {
     var why = document.getElementById("why").value;
     var what = document.getElementById("what").value;
     var where = document.getElementById("where").value;
+    var query = "https://chrome.google.com/webstore/search/" + purpose + "?_category=extensions";
+    var extension = " Query generada: " + query;
+    document.getElementById("prueba").innerText = extension;
   }
 
   return (
@@ -65,14 +69,17 @@ function App() {
         <button className="btn btn-primary" onClick={searchWebs}>Search</button>
       </div>
       <br />
-      <div>
+      <div className="function-explanation">
+        <h2>Extension Analysis</h2>
+        <p>Everytime you do a "Search", the results will display here. You have the option to see the differences (how many new extensions the query will add, and how many extesions the query will delete) between each query.</p>
+        <p id="prueba"></p>
         <div className="right-buttons">
           <Link
             to={{
               pathname: "/seleccionarWebs",
               state: { name: 'purpose', age: 25, city: 'Antwerp' }
             }}
-          ><button className="btn btn-primary">A</button></Link>
+          ><button className="btn btn-primary">Next</button></Link>
         </div>
       </div>
     </div>

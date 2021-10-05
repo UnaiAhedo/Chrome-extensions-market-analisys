@@ -1,2 +1,2 @@
 # ignore node_modules so git doesn't crash
-/node_modules
+node_modules/*

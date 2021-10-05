@@ -29,13 +29,12 @@ function SeleccionarWebs() {
         <h2>Extension selection</h2>
         <p>Select the desired extensions from below, for that just click the "Selected" button at the right of the image.</p>
       </div>
-      <Link to="/">Sign up</Link>
-      <Link to="/agruparTags">up</Link>
       <div className="right-buttons">
-        <button className="btn btn-primary">Clear</button>
+        <Link to="/"><button className="btn btn-primary">Back</button></Link>
         &nbsp;
-        <button className="btn btn-primary">Search</button>
+        <Link to="/agruparTags"><button className="btn btn-primary">Next</button></Link>
       </div>
+      <br/>
     </div>
   );
 }
