@@ -17,7 +17,7 @@ const argv = (() => {
 (async () => {
   const browser = await puppeteer.launch(
     {
-      headless: true, // launch headful mode
+      headless: false, // launch headful mode
       slowMo: 250, // slow down puppeteer script so that it's easier to follow visually
     }
   );

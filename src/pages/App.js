@@ -72,7 +72,7 @@ function App() {
       <div className="function-explanation">
         <h2>Extension Analysis</h2>
         <p>Everytime you do a "Search", the results will display here. You have the option to see the differences (how many new extensions the query will add, and how many extesions the query will delete) between each query.</p>
-        <p id="prueba"></p>
+        <b><p id="prueba"></p></b>
         <div className="right-buttons">
           <Link
             to={{
