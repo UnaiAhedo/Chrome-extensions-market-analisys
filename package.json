@@ -33,7 +33,7 @@
     "eject": "react-scripts eject",
     "pruebaPuppeteer": "node src/scripts/create-pdf.js",
     "extractComments": "node src/scripts/extractComments.js --extensionId=revnote-highlighter-web-p/hiidedlcgggnjfkfhnmmhheffbllilic",
-    "getExtensions": "node src/scripts/getExtensionsURL.js --query=highlight",
+    "getExtensionsURL": "node src/scripts/getExtensionsURL.js --query=highlight",
     "getExtensionInfo": "node src/scripts/extractExtensionInfo.js --extensionId=scener-–-virtual-movie-th/lkhjgdkpibcepflmlgahofcmeagjmecc"
   },
   "eslintConfig": {

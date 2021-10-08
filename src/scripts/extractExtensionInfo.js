@@ -45,6 +45,12 @@ const argv = (() => {
 
             usersTotal = document.querySelector("span.e-f-ih").getAttribute("title");
 
+            // rule of 3: 100% of width = 5 stars
+            //            the width that we retrieve = x stars
+            starsString = document.querySelector("div.t9Fs9c").getAttribute("style").replace("width:", '').replace("%", '');
+
+            stars = ((parseFloat(starsString) *5) / 100).toFixed(1);
+
             description = document.querySelector("pre.C-b-p-j-Oa").textContent.replace(/\n/g, ' ');
 
             version = document.querySelector("span.h-C-b-p-D-md").textContent;
@@ -53,7 +59,7 @@ const argv = (() => {
 
             info.push({
                 "name": extensionName,
-                "stars": "b",
+                "stars": stars,
                 "users": usersTotal,
                 "description": description,
                 "version": version,

@@ -17,7 +17,7 @@ const argv = (() => {
 (async () => {
   const browser = await puppeteer.launch(
     {
-      headless: false, // launch headful mode
+      headless: true, // launch headful mode
       slowMo: 250, // slow down puppeteer script so that it's easier to follow visually
     }
   );
@@ -67,7 +67,7 @@ const argv = (() => {
       comments.forEach(comment => {
         if (comment.querySelector(".ba-Eb-ba") != null) {
           if (comment.querySelector(".rsw-stars") != null) {
-            stars = comment.querySelector(".rsw-stars").ariaLabel.replace(" stars", "").replace(" star", "");
+            stars = comment.querySelector(".rsw-stars").ariaLabel.replace(" stars", "").replace(" estrellas", "");
           }
           text = comment.querySelector(".ba-Eb-ba").innerText;
           author = comment.querySelector(".comment-thread-displayname").innerText;
