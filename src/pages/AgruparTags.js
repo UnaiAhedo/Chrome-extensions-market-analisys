@@ -2,8 +2,28 @@ import React from "react";
 import { withRouter } from "react-router";
 import { Link } from "react-router-dom";
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
+import { TagCloud } from 'react-tagcloud';
+
+const data = [
+    { value: 'JavaScript', count: 38 },
+    { value: 'React', count: 30 },
+    { value: 'Nodejs', count: 28 },
+    { value: 'Express.js', count: 25 },
+    { value: 'HTML5', count: 33 },
+    { value: 'MongoDB', count: 18 },
+    { value: 'CSS3', count: 20 },
+    { value: 'JavaScripts', count: 38 },
+    { value: 'Reacts', count: 30 },
+    { value: 'Nodejss', count: 28 },
+    { value: 'Express.jss', count: 25 },
+    { value: 'HTML5s', count: 33 },
+    { value: 'MongoDBs', count: 18 },
+    { value: 'CSS3s', count: 20 },
+]
+
 
 function AgruparTags() {
+
     return (
         <div className="App">
             <header className="App-header">
@@ -23,7 +43,15 @@ function AgruparTags() {
                 <div>
                     <h2>Tags aggrupation</h2>
                     <p>Select the desired tags, click on "Group" and put them a name. With this, you will group the tags associated to the extensions, into features. Once you finish grouping all the desired tags, click on "Next". The tags that you don't group won't be saved.</p>
-                    <img className="center" src="https://media.nngroup.com/media/editor/2012/11/18/wordle-word-cloud-applications.png" alt="Tags cloud example" />
+                    <br />
+                    <div className="cloud-wrapper">
+                        <TagCloud id="prueba"
+                            minSize={12}
+                            maxSize={35}
+                            tags={data}
+                            className="simple-cloud"
+                        />
+                    </div>
                     <br />
                     <div className="right-buttons">
                         <button className="btn btn-primary">Group</button>

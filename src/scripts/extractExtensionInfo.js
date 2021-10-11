@@ -43,7 +43,7 @@ const argv = (() => {
 
             extensionName = document.querySelector("h1.e-f-w").textContent;
 
-            usersTotal = document.querySelector("span.e-f-ih").getAttribute("title");
+            usersTotal = document.querySelector("span.e-f-ih").getAttribute("title").replace(" usuarios", '').replace(" users", '');
 
             // rule of 3: 100% of width = 5 stars
             //            the width that we retrieve = x stars

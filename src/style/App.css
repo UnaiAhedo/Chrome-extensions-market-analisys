@@ -41,3 +41,11 @@ img.center {
   margin-right: auto;
   width: 50%;
 }
+
+.cloud-wrapper {
+  text-align: center;
+  background-color: #3e3833;
+  padding: 20px;
+  margin-left: 300px;
+  margin-right: 300px;
+}
