@@ -15,14 +15,113 @@ function App() {
   }
 
   function searchWebs() {
-    var purpose = document.getElementById("purpose").value;
-    var how = document.getElementById("how").value;
-    var why = document.getElementById("why").value;
-    var what = document.getElementById("what").value;
-    var where = document.getElementById("where").value;
-    var query = "https://chrome.google.com/webstore/search/" + purpose + "?_category=extensions";
-    var extension = " Query generada: " + query;
-    document.getElementById("prueba").innerText = extension;
+    var purpose = document.getElementById("purpose").value.replace(/ /g, '');
+    if (purpose !== '') {
+      var query = "https://chrome.google.com/webstore/search/";
+      var first = true;
+
+      purpose = purpose.split(',');
+      if (purpose.length === 1) {
+        query += purpose;
+      } else {
+        query += "(";
+        purpose.forEach(element => {
+          if (first) {
+            first = false;
+            query += element;
+          } else {
+            query += " OR " + element;
+          }
+        });
+        query += ")";
+      }
+
+      var how = document.getElementById("how").value.replace(/ /g, '');
+      if (how !== '') {
+        how = how.split(',');
+        if (how.length === 1) {
+          query += " AND (" + how + ")";
+        } else {
+          query += " AND (";
+          first = true;
+          how.forEach(element => {
+            if (first) {
+              first = false;
+              query += element;
+            } else {
+              query += " OR " + element;
+            }
+          });
+          query += ")";
+        }
+      }
+
+      var why = document.getElementById("why").value.replace(/ /g, '');
+      if (why !== '') {
+        why = why.split(',');
+        if (why.length === 1) {
+          query += " AND (" + why + ")";
+        } else {
+          query += " AND (";
+          first = true;
+          why.forEach(element => {
+            if (first) {
+              first = false;
+              query += element;
+            } else {
+              query += " OR " + element;
+            }
+          });
+          query += ")";
+        }
+      }
+
+      var what = document.getElementById("what").value.replace(/ /g, '');
+      if (what !== '') {
+        what = what.split(',');
+        if (what.length === 1) {
+          query += " AND (" + what + ")";
+        } else {
+          query += " AND (";
+          first = true;
+          what.forEach(element => {
+            if (first) {
+              first = false;
+              query += element;
+            } else {
+              query += " OR " + element;
+            }
+          });
+          query += ")";
+        }
+      }
+
+      var where = document.getElementById("where").value.replace(/ /g, '');
+      if (where !== '') {
+        where = where.split(',');
+        if (where.length === 1) {
+          query += " AND (" + where + ")";
+        } else {
+          query += " AND (";
+          first = true;
+          where.forEach(element => {
+            if (first) {
+              first = false;
+              query += element;
+            } else {
+              query += " OR " + element;
+            }
+          });
+          query += ")";
+        }
+      }
+
+      query += "?_category=extensions";
+      var extension = " Query generada: " + query;
+      document.getElementById("prueba").innerText = extension;
+    } else {
+      document.getElementById("prueba").innerText = "Purpose can't be empty.";
+    }
   }
 
   return (
@@ -42,7 +141,7 @@ function App() {
       </div>
       <div className="function-explanation">
         <h2>Extension Analysis</h2>
-        <p>Introduce the desired tags of the Chrome extension below, you can left blanks tags (except the purpose one). After that, click on "Search", select the desired query, and follow the steps.</p>
+        <p>Introduce the desired tags of the Chrome extension below, you can left blanks tags (except the purpose one). If you want to introduce more than one value, use commas (for example in purpose: annotation, highlight). After that, click on "Search", select the desired query, and follow the steps.</p>
       </div>
       <table className="center">
         <tbody>
