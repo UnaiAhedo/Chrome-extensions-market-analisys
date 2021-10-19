@@ -11,10 +11,20 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 900, height: 680, webPreferences: {
-      webSecurity: false
-    }
+    width: 900, height: 680
   });
+  mainWindow.webContents.session.webRequest.onHeadersReceived({ urls: ["*://*/*"] },
+    (d, c) => {
+      if (d.responseHeaders['X-Frame-Options']) {
+        delete d.responseHeaders['X-Frame-Options'];
+      } else if (d.responseHeaders['x-frame-options']) {
+        delete d.responseHeaders['x-frame-options'];
+      }
+
+      c({ cancel: false, responseHeaders: d.responseHeaders });
+    }
+  );
+
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
   if (isDev) {
     // Open the DevTools.
