@@ -4,6 +4,50 @@ import { withRouter } from "react-router";
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function App() {
+
+  function inputToQuery(purpose, input, query) {
+    var first = true;
+
+    if (purpose) {
+      input = input.split(',');
+      if (input.length === 1) {
+        query += input;
+      } else {
+        query += "(";
+        input.forEach(element => {
+          if (first) {
+            first = false;
+            query += element;
+          } else {
+            query += " OR " + element;
+          }
+        });
+        query += ")";
+      }
+    } else {
+      
+      if (input !== '') {
+        input = input.split(',');
+        if (input.length === 1) {
+          query += " AND (" + input + ")";
+        } else {
+          query += " AND (";
+          first = true;
+          input.forEach(element => {
+            if (first) {
+              first = false;
+              query += element;
+            } else {
+              query += " OR " + element;
+            }
+          });
+          query += ")";
+        }
+      }
+    }
+    return query;
+  }
+
   function clear() {
     var elements = document.getElementsByTagName("input");
     for (var i = 0; i < elements.length; i++) {
@@ -18,103 +62,20 @@ function App() {
     var purpose = document.getElementById("purpose").value.replace(/ /g, '');
     if (purpose !== '') {
       var query = "https://chrome.google.com/webstore/search/";
-      var first = true;
 
-      purpose = purpose.split(',');
-      if (purpose.length === 1) {
-        query += purpose;
-      } else {
-        query += "(";
-        purpose.forEach(element => {
-          if (first) {
-            first = false;
-            query += element;
-          } else {
-            query += " OR " + element;
-          }
-        });
-        query += ")";
-      }
+      query = inputToQuery(true, purpose, query);
 
       var how = document.getElementById("how").value.replace(/ /g, '');
-      if (how !== '') {
-        how = how.split(',');
-        if (how.length === 1) {
-          query += " AND (" + how + ")";
-        } else {
-          query += " AND (";
-          first = true;
-          how.forEach(element => {
-            if (first) {
-              first = false;
-              query += element;
-            } else {
-              query += " OR " + element;
-            }
-          });
-          query += ")";
-        }
-      }
+      query = inputToQuery(false, how, query);
 
       var why = document.getElementById("why").value.replace(/ /g, '');
-      if (why !== '') {
-        why = why.split(',');
-        if (why.length === 1) {
-          query += " AND (" + why + ")";
-        } else {
-          query += " AND (";
-          first = true;
-          why.forEach(element => {
-            if (first) {
-              first = false;
-              query += element;
-            } else {
-              query += " OR " + element;
-            }
-          });
-          query += ")";
-        }
-      }
+      query = inputToQuery(false, why, query);
 
       var what = document.getElementById("what").value.replace(/ /g, '');
-      if (what !== '') {
-        what = what.split(',');
-        if (what.length === 1) {
-          query += " AND (" + what + ")";
-        } else {
-          query += " AND (";
-          first = true;
-          what.forEach(element => {
-            if (first) {
-              first = false;
-              query += element;
-            } else {
-              query += " OR " + element;
-            }
-          });
-          query += ")";
-        }
-      }
+      query = inputToQuery(false, what, query);
 
       var where = document.getElementById("where").value.replace(/ /g, '');
-      if (where !== '') {
-        where = where.split(',');
-        if (where.length === 1) {
-          query += " AND (" + where + ")";
-        } else {
-          query += " AND (";
-          first = true;
-          where.forEach(element => {
-            if (first) {
-              first = false;
-              query += element;
-            } else {
-              query += " OR " + element;
-            }
-          });
-          query += ")";
-        }
-      }
+      query = inputToQuery(false, where, query);
 
       query += "?_category=extensions";
       var extension = " Query generada: " + query;
