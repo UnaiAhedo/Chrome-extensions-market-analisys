@@ -7,7 +7,6 @@ function App() {
 
   function inputToQuery(purpose, input, query) {
     var first = true;
-
     if (purpose) {
       input = input.split(',');
       if (input.length === 1) {
@@ -25,7 +24,6 @@ function App() {
         query += ")";
       }
     } else {
-      
       if (input !== '') {
         input = input.split(',');
         if (input.length === 1) {
@@ -80,6 +78,7 @@ function App() {
       query += "?_category=extensions";
       var extension = " Query generada: " + query;
       document.getElementById("prueba").innerText = extension;
+      document.getElementById("iframe").setAttribute("src", query);
     } else {
       document.getElementById("prueba").innerText = "Purpose can't be empty.";
     }
@@ -142,7 +141,7 @@ function App() {
           ><button className="btn btn-primary">Next</button></Link>
         </div>
       </div>
-      <iframe src="https://chrome.google.com/webstore/search/123?hl=es&_category=extensions"></iframe>
+      <iframe width="1200px" height="250px" id="iframe"></iframe>
     </div>
   );
 }
