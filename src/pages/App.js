@@ -2,8 +2,23 @@ import React from 'react';
 import { Link } from "react-router-dom";
 import { withRouter } from "react-router";
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
+import puppeteer from 'puppeteer-web';
 
 function App() {
+
+  async function runPuppeteer(){
+ 
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: `ws://127.0.0.1:8080`, // <-- connect to a server running somewhere
+      ignoreHTTPSErrors: true
+    });
+    console.log("a");
+    const pagesCount = (await browser.pages()).length;
+    console.log("a");
+    const browserWSEndpoint = await browser.wsEndpoint();
+    console.log({ browserWSEndpoint, pagesCount });
+   
+  }
 
   function inputToQuery(purpose, input, query) {
     var first = true;
@@ -25,7 +40,6 @@ function App() {
         query += ")";
       }
     } else {
-      
       if (input !== '') {
         input = input.split(',');
         if (input.length === 1) {
@@ -80,6 +94,8 @@ function App() {
       query += "?_category=extensions";
       var extension = " Query generada: " + query;
       document.getElementById("prueba").innerText = extension;
+
+      runPuppeteer();
     } else {
       document.getElementById("prueba").innerText = "Purpose can't be empty.";
     }
