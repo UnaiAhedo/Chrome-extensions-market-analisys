@@ -142,6 +142,7 @@ function App() {
           ><button className="btn btn-primary">Next</button></Link>
         </div>
       </div>
+      <iframe src="https://es.javascript.info/cross-window-communication" id="iframe"></iframe>
     </div>
   );
 }
