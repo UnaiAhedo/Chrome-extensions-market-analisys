@@ -25,7 +25,7 @@ function App() {
         query += ")";
       }
     } else {
-      
+
       if (input !== '') {
         input = input.split(',');
         if (input.length === 1) {
@@ -80,6 +80,9 @@ function App() {
       query += "?_category=extensions";
       var extension = " Query generada: " + query;
       document.getElementById("prueba").innerText = extension;
+      fetch('http://localhost:4000/searchExtensions?q=' + query).then(res => res.text().then(text => console.log(JSON.parse(text))));
+      //fetch('http://localhost:4000/extractExtensionInfo?q=https://chrome.google.com/webstore/detail/123-password/pahmlghhaoabdlhnkmmjbkcmdamjccjj').then(res => res.text().then(text => console.log(JSON.parse(text))));
+      //fetch('http://localhost:4000/extractComments?q=https://chrome.google.com/webstore/detail/blocksite-block-websites/eiimnmioipafcokbfikbljfdeojpcgbh').then(res => res.text().then(text => console.log(JSON.parse(text))));
     } else {
       document.getElementById("prueba").innerText = "Purpose can't be empty.";
     }
