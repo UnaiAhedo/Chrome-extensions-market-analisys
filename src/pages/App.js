@@ -5,6 +5,31 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function App() {
 
+  async function getDescriptions(query) {
+    return await fetch('http://localhost:4000/extractExtensionInfo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        { query }
+      )
+    }).then(res => res.text())
+    .then(text => console.log(JSON.parse(text)));
+    //then(res => res.text().then(text => console.log(JSON.stringify(res))));
+    //let extensionInfo = []
+    /*for (let i = 0; i < responseJSON.length; i++) {
+  await fetch('http://localhost:4000/extractExtensionInfo?q=' + responseJSON[i]).then(res => res.text().then(text => extensionInfo.push(text)));
+}
+return JSON.stringify(extensionInfo);*/
+  }
+
+  function getURLs(query) {
+    return fetch('http://localhost:4000/searchExtensions?q=' + query)
+      .then(res => res.text())
+      .then(text => JSON.parse(text));
+  }
+
   function inputToQuery(purpose, input, query) {
     var first = true;
 
@@ -58,7 +83,7 @@ function App() {
     document.getElementById("prueba").innerText = '';
   }
 
-  function searchWebs() {
+  async function searchWebs() {
     var purpose = document.getElementById("purpose").value.replace(/ /g, '');
     if (purpose !== '') {
       var query = "https://chrome.google.com/webstore/search/";
@@ -78,11 +103,11 @@ function App() {
       query = inputToQuery(false, where, query);
 
       query += "?_category=extensions";
-      var extension = " Query generada: " + query;
-      document.getElementById("prueba").innerText = extension;
-      fetch('http://localhost:4000/searchExtensions?q=' + query).then(res => res.text().then(text => console.log(JSON.parse(text))));
-      //fetch('http://localhost:4000/extractExtensionInfo?q=https://chrome.google.com/webstore/detail/123-password/pahmlghhaoabdlhnkmmjbkcmdamjccjj').then(res => res.text().then(text => console.log(JSON.parse(text))));
-      //fetch('http://localhost:4000/extractComments?q=https://chrome.google.com/webstore/detail/blocksite-block-websites/eiimnmioipafcokbfikbljfdeojpcgbh').then(res => res.text().then(text => console.log(JSON.parse(text))));
+
+      var responseJSON = await getURLs(query);
+
+      var extensionsInfo = await getDescriptions(responseJSON);
+      
     } else {
       document.getElementById("prueba").innerText = "Purpose can't be empty.";
     }
