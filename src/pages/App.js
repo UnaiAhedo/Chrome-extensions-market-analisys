@@ -6,7 +6,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 function App() {
 
   async function getDescriptions(query) {
-    return await fetch('http://localhost:4000/extractExtensionInfo', {
+    return await fetch('http://localhost:4000/extractExtensionInfo', { // the query is a JSON with all the URLs from the extensions
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -15,24 +15,30 @@ function App() {
         { query }
       )
     }).then(res => res.text())
-    .then(text => console.log(JSON.parse(text)));
-    //then(res => res.text().then(text => console.log(JSON.stringify(res))));
-    //let extensionInfo = []
-    /*for (let i = 0; i < responseJSON.length; i++) {
-  await fetch('http://localhost:4000/extractExtensionInfo?q=' + responseJSON[i]).then(res => res.text().then(text => extensionInfo.push(text)));
-}
-return JSON.stringify(extensionInfo);*/
+      .then(text => console.log(JSON.parse(text)));
+  }
+
+  async function getComments(query) {
+    return await fetch('http://localhost:4000/extractComments', { // the query is a JSON with all the URLs from the extensions
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        { query }
+      )
+    }).then(res => res.text())
+      .then(text => console.log(JSON.parse(text)));
   }
 
   function getURLs(query) {
-    return fetch('http://localhost:4000/searchExtensions?q=' + query)
+    return fetch('http://localhost:4000/searchExtensions?q=' + query) // the query is formed following the 5Ws
       .then(res => res.text())
       .then(text => JSON.parse(text));
   }
 
   function inputToQuery(purpose, input, query) {
     var first = true;
-
     if (purpose) {
       input = input.split(',');
       if (input.length === 1) {
@@ -50,7 +56,6 @@ return JSON.stringify(extensionInfo);*/
         query += ")";
       }
     } else {
-
       if (input !== '') {
         input = input.split(',');
         if (input.length === 1) {
@@ -104,10 +109,15 @@ return JSON.stringify(extensionInfo);*/
 
       query += "?_category=extensions";
 
+      document.getElementById("status").innerHTML = "Loading the query.";
+
       var responseJSON = await getURLs(query);
 
       var extensionsInfo = await getDescriptions(responseJSON);
-      
+
+      document.getElementById("status").innerHTML = "";
+      //var comments = await getComments(responseJSON);
+
     } else {
       document.getElementById("prueba").innerText = "Purpose can't be empty.";
     }
@@ -161,6 +171,7 @@ return JSON.stringify(extensionInfo);*/
         <h2>Extension Analysis</h2>
         <p>Everytime you do a "Search", the results will display here. You have the option to see the differences (how many new extensions the query will add, and how many extesions the query will delete) between each query.</p>
         <b><p id="prueba"></p></b>
+        <h2 className="center" id="status"></h2>
         <div className="right-buttons">
           <Link
             to={{

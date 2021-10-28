@@ -86,11 +86,10 @@ const argv = (() => {
     })
   }
 
-
   while (hasNext && maxPages > 0) {
     result.push(...await extractComments(page));
     hasNext = await page.evaluate(() => {
-      if (document.querySelector("body  a.dc-se") != null){
+      if (document.querySelector("body  a.dc-se").getAttribute("style") != "display: none;"){
         document.querySelector("body  a.dc-se").click();
         return true;
       }  
