@@ -5,39 +5,141 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function App() {
 
+  var previousURLs = null;
+
   async function getDescriptions(query) {
-    return await fetch('http://localhost:4000/extractExtensionInfo', { // the query is a JSON with all the URLs from the extensions
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(
-        { query }
-      )
-    }).then(res => res.text())
-      .then(text => console.log(JSON.parse(text)));
+    if (query.length != 0) {
+      return await fetch('http://localhost:4000/extractExtensionInfo', { // the query is a JSON with all the URLs from the extensions
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+          { query }
+        )
+      }).then(res => res.text())
+        .then(text => JSON.parse(text));
+    }
   }
 
   async function getComments(query) {
-    return await fetch('http://localhost:4000/extractComments', { // the query is a JSON with all the URLs from the extensions
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(
-        { query }
-      )
-    }).then(res => res.text())
-      .then(text => console.log(JSON.parse(text)));
+    if (query.length != 0) {
+      return await fetch('http://localhost:4000/extractComments', { // the query is a JSON with all the URLs from the extensions
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+          { query }
+        )
+      }).then(res => res.text())
+        .then(text => JSON.parse(text));
+    }
   }
 
-  function getURLs(query) {
-    return fetch('http://localhost:4000/searchExtensions?q=' + query) // the query is formed following the 5Ws
+  async function getURLs(query) {
+    return await fetch('http://localhost:4000/searchExtensions?q=' + query) // the query is formed following the 5Ws
       .then(res => res.text())
       .then(text => JSON.parse(text));
   }
 
-  function inputToQuery(purpose, input, query) {
+  function inputToQueryForTable() { // Gives format to the query to be displayed in the result table
+    var first = true;
+    var query = "Purpose: "
+    var purpose = document.getElementById("purpose").value.replace(/ /g, '').split(',');
+    if (purpose.length === 1) {
+      query += "'" + purpose + "'";
+    } else {
+      purpose.forEach(element => {
+        if (first) {
+          first = false;
+          query += "'" + element;
+        } else {
+          query += " OR " + element;
+        }
+      });
+      query += "'";
+    }
+
+    first = true;
+    var how = document.getElementById("how").value.replace(/ /g, '');
+    if (how !== '') {
+      how = how.split(',')
+      if (how.length === 1) {
+        query += " AND How: '" + how + "'";
+      } else {
+        how.forEach(element => {
+          if (first) {
+            first = false;
+            query += " AND How: '" + element;
+          } else {
+            query += " OR " + element;
+          }
+        });
+        query += "'";
+      }
+    }
+
+    first = true;
+    var why = document.getElementById("why").value.replace(/ /g, '');
+    if (why !== '') {
+      why = why.split(',')
+      if (why.length === 1) {
+        query += " AND Why: '" + why + "'";
+      } else {
+        why.forEach(element => {
+          if (first) {
+            first = false;
+            query += " AND Why: '" + element;
+          } else {
+            query += " OR " + element;
+          }
+        });
+        query += "'";
+      }
+    }
+
+    first = true;
+    var what = document.getElementById("what").value.replace(/ /g, '');
+    if (what !== '') {
+      what = what.split(',')
+      if (what.length === 1) {
+        query += " AND What: '" + what + "'";
+      } else {
+        what.forEach(element => {
+          if (first) {
+            first = false;
+            query += " AND What: '" + element;
+          } else {
+            query += " OR " + element;
+          }
+        });
+        query += "'";
+      }
+    }
+
+    first = true;
+    var where = document.getElementById("where").value.replace(/ /g, '');
+    if (where !== '') {
+      where = where.split(',')
+      if (where.length === 1) {
+        query += " AND Where: '" + where + "'";
+      } else {
+        where.forEach(element => {
+          if (first) {
+            first = false;
+            query += " AND Where: '" + element;
+          } else {
+            query += " OR " + element;
+          }
+        });
+        query += "'";
+      }
+    }
+    return query;
+  }
+
+  function inputToQuery(purpose, input, query) { // Return the query with the format to send it to the scrapping service
     var first = true;
     if (purpose) {
       input = input.split(',');
@@ -85,7 +187,76 @@ function App() {
         elements[i].value = "";
       }
     }
-    document.getElementById("prueba").innerText = '';
+    document.getElementById("status").innerText = '';
+  }
+
+  function addRows(tableQuery, URLs, extensionInfo) {
+
+    var tbodyRef = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+
+    // Insert a row at the end of table
+    var newRow = tbodyRef.insertRow();
+
+    // Insert a cell at the end of the row
+    var newCell = newRow.insertCell();
+    var newCell2 = newRow.insertCell();
+    var newCell3 = newRow.insertCell();
+    var newCell4 = newRow.insertCell();
+    var newCell5 = newRow.insertCell();
+
+    var newText;
+    var newText2;
+    var newText3;
+    var newText4;
+    var newText5;
+
+    if (URLs.length != 0) {
+      // Get the blockbusters, stars >= 5
+      let blockbusters = 0;
+      extensionInfo.forEach(element => {
+        if (element["stars"] >= 5) blockbusters++;
+      });
+
+      // Get the number of new searchs, if previous URLs didn't have one of the news, that's a new one
+      let newSearch = 0;
+      if (previousURLs != null) {
+        URLs.forEach(element => {
+          if (!previousURLs.includes(element)) {
+            newSearch++;
+          }
+        });
+      }
+
+      let deletedSearchs = 0;
+      if (previousURLs != null) {
+        previousURLs.forEach(element => {
+          if (!URLs.includes(element)) {
+            deletedSearchs++;
+          }
+        });
+      }
+
+      previousURLs = URLs;
+
+      // Append a text node to the cell
+      newText = document.createTextNode(tableQuery);
+      newText2 = document.createTextNode(URLs.length);
+      newText3 = document.createTextNode(blockbusters);
+      newText4 = document.createTextNode(newSearch);
+      newText5 = document.createTextNode(deletedSearchs);
+    } else {
+      newText = document.createTextNode(tableQuery);
+      newText2 = document.createTextNode("0");
+      newText3 = document.createTextNode("0");
+      newText4 = document.createTextNode("0");
+      newText5 = document.createTextNode("0");
+    }
+
+    newCell.appendChild(newText);
+    newCell2.appendChild(newText2);
+    newCell3.appendChild(newText3);
+    newCell4.appendChild(newText4);
+    newCell5.appendChild(newText5);
   }
 
   async function searchWebs() {
@@ -111,15 +282,17 @@ function App() {
 
       document.getElementById("status").innerHTML = "Loading the query.";
 
-      var responseJSON = await getURLs(query);
+      var responseURLs = await getURLs(query);
 
-      var extensionsInfo = await getDescriptions(responseJSON);
+      var extensionsInfo = await getDescriptions(responseURLs);
+
+      addRows(inputToQueryForTable(), responseURLs, extensionsInfo);
 
       document.getElementById("status").innerHTML = "";
-      //var comments = await getComments(responseJSON);
+      //var comments = await getComments(responseURLs);
 
     } else {
-      document.getElementById("prueba").innerText = "Purpose can't be empty.";
+      document.getElementById("status").innerText = "Purpose can't be empty.";
     }
   }
 
@@ -143,7 +316,7 @@ function App() {
         <p>Introduce the desired tags of the Chrome extension below, you can left blanks tags (except the purpose one). If you want to introduce more than one value, use commas (for example in purpose: annotation, highlight). After that, click on "Search", select the desired query, and follow the steps.</p>
       </div>
       <table className="center">
-        <tbody>
+        <thead>
           <tr>
             <th>Purpose (*)</th>
             <th>How</th>
@@ -151,6 +324,8 @@ function App() {
             <th>What</th>
             <th>Where</th>
           </tr>
+        </thead>
+        <tbody>
           <tr>
             <td><input id="purpose"></input></td>
             <td><input id="how"></input></td>
@@ -170,8 +345,20 @@ function App() {
       <div className="function-explanation">
         <h2>Extension Analysis</h2>
         <p>Everytime you do a "Search", the results will display here. You have the option to see the differences (how many new extensions the query will add, and how many extesions the query will delete) between each query.</p>
-        <b><p id="prueba"></p></b>
         <h2 className="center" id="status"></h2>
+        <table id="resultTable" className="center-spacing">
+          <thead>
+            <tr>
+              <th>Search</th>
+              <th>Results</th>
+              <th>Blockbusters</th>
+              <th>New searchs</th>
+              <th>Deleted searchs</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
         <div className="right-buttons">
           <Link
             to={{

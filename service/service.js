@@ -12,6 +12,7 @@ app.listen(4000, () => {
 })
 
 app.get('/searchExtensions', async (req, res) => {
+  console.log("A");
   const browser = await puppeteer.launch(
     {
       headless: true, // launch headful mode
@@ -158,7 +159,6 @@ async function getURLs(page) {
 
 async function extractComments(page) {
   return await page.evaluate(() => {
-
     let messages = [];
     let comments = document.querySelectorAll("body    div.ba-pa")
 

@@ -35,6 +35,14 @@ table.center {
   margin-right:auto;
 }
 
+table.center-spacing {
+  border-spacing: 15px;
+  margin-left:auto; 
+  margin-right:auto;
+  border-collapse: separate;
+  border-spacing: 50px 0;
+}
+
 h2.center {
   text-align: center;
 }
