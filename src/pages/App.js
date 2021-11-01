@@ -9,24 +9,11 @@ function App() {
 
   var localStorage = window.localStorage; // needed to storage the info of the previous extensions
 
+  localStorage.clear();
+
   async function getDescriptions(query) {
     if (query.length !== 0) {
       return await fetch('http://localhost:4000/extractExtensionInfo', { // the body is a JSON with all the URLs from the extensions
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(
-          { query }
-        )
-      }).then(res => res.text())
-        .then(text => JSON.parse(text));
-    }
-  }
-
-  async function getComments(query) {
-    if (query.length !== 0) {
-      return await fetch('http://localhost:4000/extractComments', { // the body is a JSON with all the URLs from the extensions
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -192,6 +179,24 @@ function App() {
     document.getElementById("status").innerText = '';
   }
 
+  function disableButtons() {
+    let buttons = document.querySelectorAll("button");
+    buttons.forEach(button => {
+      button.disabled = true;
+    });
+    let link = document.getElementById("nextPage");
+    link.style.pointerEvents = "none";
+  }
+
+  function activateButtons() {
+    let buttons = document.querySelectorAll("button");
+    buttons.forEach(button => {
+      button.disabled = false;
+    });
+    let link = document.getElementById("nextPage");
+    link.style.pointerEvents = "auto";
+  }
+
   function addRows(tableQuery, URLs, extensionInfo) {
 
     var tbodyRef = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
@@ -205,7 +210,9 @@ function App() {
     var newCell3 = newRow.insertCell();
     var newCell4 = newRow.insertCell();
     var newCell5 = newRow.insertCell();
+    var newCell6 = newRow.insertCell();
 
+    var radiobox;
     var newText;
     var newText2;
     var newText3;
@@ -241,13 +248,21 @@ function App() {
 
       previousURLs = URLs;
 
+      var radiobox = document.createElement('input');
+      radiobox.type = 'radio';
+      radiobox.id = 'querySelected';
+      radiobox.value = 'query';
+      radiobox.name = 'queryGroup';
+
       // Append a text node to the cell
       newText = document.createTextNode(tableQuery);
       newText2 = document.createTextNode(URLs.length);
       newText3 = document.createTextNode(blockbusters);
       newText4 = document.createTextNode(newSearch);
       newText5 = document.createTextNode(deletedSearchs);
+
     } else {
+      radiobox = document.createTextNode("");
       newText = document.createTextNode(tableQuery);
       newText2 = document.createTextNode("0");
       newText3 = document.createTextNode("0");
@@ -255,16 +270,18 @@ function App() {
       newText5 = document.createTextNode("0");
     }
 
-    newCell.appendChild(newText);
-    newCell2.appendChild(newText2);
-    newCell3.appendChild(newText3);
-    newCell4.appendChild(newText4);
-    newCell5.appendChild(newText5);
+    newCell.appendChild(radiobox);
+    newCell2.appendChild(newText);
+    newCell3.appendChild(newText2);
+    newCell4.appendChild(newText3);
+    newCell5.appendChild(newText4);
+    newCell6.appendChild(newText5);
   }
 
   async function searchWebs() {
     var purpose = document.getElementById("purpose").value.replace(/ /g, '');
     if (purpose !== '') {
+      disableButtons();
       // Create the query for the search
       var query = "https://chrome.google.com/webstore/search/";
 
@@ -289,22 +306,19 @@ function App() {
       // Get the URLs of the query, thos extension info and add them to the table
       var responseURLs = await getURLs(query);
 
-      var extensionsInfo = await getDescriptions(responseURLs);
+      if (responseURLs.length !== 0) {
+        var extensionsInfo = await getDescriptions(responseURLs);
 
+        // Put the object into storage
+        localStorage.setItem(inputToQueryForTable() + "URL", JSON.stringify(responseURLs));
+        localStorage.setItem(inputToQueryForTable() + "INFO", JSON.stringify(extensionsInfo));
+        // Retrieve the object from storage
+        var retrievedObject = localStorage.getItem(inputToQueryForTable() + "INFO");
+        console.log(JSON.parse(retrievedObject));
+      }
       addRows(inputToQueryForTable(), responseURLs, extensionsInfo);
-
       document.getElementById("status").style.display = "none";
-      //var comments = await getComments(responseURLs);
-
-      // Put the object into storage
-      localStorage.setItem(inputToQueryForTable() + "URL", JSON.stringify(responseURLs));
-      localStorage.setItem(inputToQueryForTable() + "INFO", JSON.stringify(extensionsInfo));
-
-      // Retrieve the object from storage
-      var retrievedObject = localStorage.getItem(inputToQueryForTable() + "URL");
-
-      console.log(JSON.parse(retrievedObject));
-
+      activateButtons();
     } else {
       document.getElementById("status").innerText = "Purpose can't be empty.";
     }
@@ -363,6 +377,7 @@ function App() {
         <table id="resultTable" className="center-spacing">
           <thead>
             <tr>
+              <th>Select</th>
               <th>Search</th>
               <th>Results</th>
               <th>Blockbusters</th>
@@ -374,7 +389,7 @@ function App() {
           </tbody>
         </table>
         <div className="right-buttons">
-          <Link
+          <Link id="nextPage"
             to={{
               pathname: "/seleccionarWebs",
               state: { name: 'purpose', age: 25, city: 'Antwerp' }

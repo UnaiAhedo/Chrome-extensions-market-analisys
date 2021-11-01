@@ -23,6 +23,21 @@ const data = [
 
 
 function AgruparTags() {
+    //var comments = await getComments(responseURLs);
+    async function getComments(query) {
+        if (query.length !== 0) {
+            return await fetch('http://localhost:4000/extractComments', { // the body is a JSON with all the URLs from the extensions
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(
+                    { query }
+                )
+            }).then(res => res.text())
+                .then(text => JSON.parse(text));
+        }
+    }
 
     return (
         <div className="App">
