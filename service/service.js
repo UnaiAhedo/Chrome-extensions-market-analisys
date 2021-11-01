@@ -12,7 +12,6 @@ app.listen(4000, () => {
 })
 
 app.get('/searchExtensions', async (req, res) => {
-  console.log("A");
   const browser = await puppeteer.launch(
     {
       headless: true, // launch headful mode

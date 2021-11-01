@@ -7,9 +7,11 @@ function App() {
 
   var previousURLs = null;
 
+  var localStorage = window.localStorage; // needed to storage the info of the previous extensions
+
   async function getDescriptions(query) {
-    if (query.length != 0) {
-      return await fetch('http://localhost:4000/extractExtensionInfo', { // the query is a JSON with all the URLs from the extensions
+    if (query.length !== 0) {
+      return await fetch('http://localhost:4000/extractExtensionInfo', { // the body is a JSON with all the URLs from the extensions
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -23,8 +25,8 @@ function App() {
   }
 
   async function getComments(query) {
-    if (query.length != 0) {
-      return await fetch('http://localhost:4000/extractComments', { // the query is a JSON with all the URLs from the extensions
+    if (query.length !== 0) {
+      return await fetch('http://localhost:4000/extractComments', { // the body is a JSON with all the URLs from the extensions
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -141,7 +143,7 @@ function App() {
 
   function inputToQuery(purpose, input, query) { // Return the query with the format to send it to the scrapping service
     var first = true;
-    if (purpose) {
+    if (purpose) { // The purpose being the first one, have to be a little different that the other ones
       input = input.split(',');
       if (input.length === 1) {
         query += input;
@@ -158,7 +160,7 @@ function App() {
         query += ")";
       }
     } else {
-      if (input !== '') {
+      if (input !== '') { // 
         input = input.split(',');
         if (input.length === 1) {
           query += " AND (" + input + ")";
@@ -210,7 +212,7 @@ function App() {
     var newText4;
     var newText5;
 
-    if (URLs.length != 0) {
+    if (URLs.length !== 0) {
       // Get the blockbusters, stars >= 5
       let blockbusters = 0;
       extensionInfo.forEach(element => {
@@ -219,7 +221,7 @@ function App() {
 
       // Get the number of new searchs, if previous URLs didn't have one of the news, that's a new one
       let newSearch = 0;
-      if (previousURLs != null) {
+      if (previousURLs !== null) {
         URLs.forEach(element => {
           if (!previousURLs.includes(element)) {
             newSearch++;
@@ -227,6 +229,7 @@ function App() {
         });
       }
 
+      // Get the number of deleted searchs, if actual URLs don't have one of the olds, that's a deleted one
       let deletedSearchs = 0;
       if (previousURLs != null) {
         previousURLs.forEach(element => {
@@ -262,6 +265,7 @@ function App() {
   async function searchWebs() {
     var purpose = document.getElementById("purpose").value.replace(/ /g, '');
     if (purpose !== '') {
+      // Create the query for the search
       var query = "https://chrome.google.com/webstore/search/";
 
       query = inputToQuery(true, purpose, query);
@@ -280,16 +284,26 @@ function App() {
 
       query += "?_category=extensions";
 
-      document.getElementById("status").innerHTML = "Loading the query.";
+      document.getElementById("status").style.display = "";
 
+      // Get the URLs of the query, thos extension info and add them to the table
       var responseURLs = await getURLs(query);
 
       var extensionsInfo = await getDescriptions(responseURLs);
 
       addRows(inputToQueryForTable(), responseURLs, extensionsInfo);
 
-      document.getElementById("status").innerHTML = "";
+      document.getElementById("status").style.display = "none";
       //var comments = await getComments(responseURLs);
+
+      // Put the object into storage
+      localStorage.setItem(inputToQueryForTable() + "URL", JSON.stringify(responseURLs));
+      localStorage.setItem(inputToQueryForTable() + "INFO", JSON.stringify(extensionsInfo));
+
+      // Retrieve the object from storage
+      var retrievedObject = localStorage.getItem(inputToQueryForTable() + "URL");
+
+      console.log(JSON.parse(retrievedObject));
 
     } else {
       document.getElementById("status").innerText = "Purpose can't be empty.";
@@ -345,7 +359,7 @@ function App() {
       <div className="function-explanation">
         <h2>Extension Analysis</h2>
         <p>Everytime you do a "Search", the results will display here. You have the option to see the differences (how many new extensions the query will add, and how many extesions the query will delete) between each query.</p>
-        <h2 className="center" id="status"></h2>
+        <h2 className="center" id="status" style={{ display: "none" }}>Loading the query.</h2>
         <table id="resultTable" className="center-spacing">
           <thead>
             <tr>
