@@ -128,6 +128,19 @@ function App() {
     return query;
   }
 
+  function selectRow() {
+    var radios = document.getElementsByName("queryGroup");
+    let i = 1;
+    for (var radio of radios) {
+      if (radio.checked) {
+        break;
+      }
+      i++;
+    }
+    var table = document.getElementById("resultTable");
+    localStorage.setItem("query", table.rows[i].cells[1].innerText);
+  }
+
   function inputToQuery(purpose, input, query) { // Return the query with the format to send it to the scrapping service
     var first = true;
     if (purpose) { // The purpose being the first one, have to be a little different that the other ones
@@ -169,7 +182,7 @@ function App() {
     return query;
   }
 
-  function clear() {
+  function clearInputs() {
     var elements = document.getElementsByTagName("input");
     for (var i = 0; i < elements.length; i++) {
       if (elements[i].type === "text") {
@@ -197,7 +210,7 @@ function App() {
     link.style.pointerEvents = "auto";
   }
 
-  function addRows(tableQuery, URLs, extensionInfo) {
+  function addRowsToQueryTable(tableQuery, URLs, extensionInfo) {
 
     var tbodyRef = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
 
@@ -246,28 +259,36 @@ function App() {
         });
       }
 
-      previousURLs = URLs;
-
-      var radiobox = document.createElement('input');
+      radiobox = document.createElement('input');
       radiobox.type = 'radio';
       radiobox.id = 'querySelected';
       radiobox.value = 'query';
       radiobox.name = 'queryGroup';
+      radiobox.onclick = selectRow;
 
       // Append a text node to the cell
       newText = document.createTextNode(tableQuery);
       newText2 = document.createTextNode(URLs.length);
       newText3 = document.createTextNode(blockbusters);
-      newText4 = document.createTextNode(newSearch);
+      if (previousURLs !== null) {
+        newText4 = document.createTextNode(newSearch);
+      } else {
+        newText4 = document.createTextNode(URLs.length);
+      }
       newText5 = document.createTextNode(deletedSearchs);
-
+      previousURLs = URLs;
     } else {
       radiobox = document.createTextNode("");
       newText = document.createTextNode(tableQuery);
       newText2 = document.createTextNode("0");
       newText3 = document.createTextNode("0");
       newText4 = document.createTextNode("0");
-      newText5 = document.createTextNode("0");
+      if (previousURLs !== null) {
+        newText5 = document.createTextNode(previousURLs.length);
+      } else {
+        newText5 = document.createTextNode("0");
+      }
+      previousURLs = null;
     }
 
     newCell.appendChild(radiobox);
@@ -316,7 +337,7 @@ function App() {
         var retrievedObject = localStorage.getItem(inputToQueryForTable() + "INFO");
         console.log(JSON.parse(retrievedObject));
       }
-      addRows(inputToQueryForTable(), responseURLs, extensionsInfo);
+      addRowsToQueryTable(inputToQueryForTable(), responseURLs, extensionsInfo);
       document.getElementById("status").style.display = "none";
       activateButtons();
     } else {
@@ -365,7 +386,7 @@ function App() {
       </table>
       <br />
       <div className="right-buttons">
-        <button className="btn btn-primary" onClick={clear}>Clear</button>
+        <button className="btn btn-primary" onClick={clearInputs}>Clear</button>
         &nbsp;
         <button className="btn btn-primary" onClick={searchWebs}>Search</button>
       </div>
@@ -388,15 +409,14 @@ function App() {
           <tbody>
           </tbody>
         </table>
-        <div className="right-buttons">
-          <Link id="nextPage"
-            to={{
-              pathname: "/seleccionarWebs",
-              state: { name: 'purpose', age: 25, city: 'Antwerp' }
-            }}
-          ><button className="btn btn-primary">Next</button></Link>
+        <div className="right-buttons"><Link id="nextPage"
+          to={{
+            pathname: "/seleccionarWebs",
+            state: { name: 'purpose', age: 25, city: 'Antwerp' }
+          }}>
+          <button className="btn btn-primary">Next</button></Link>
         </div>
-      </div>
+      </div><script>selectRow();</script>
     </div>
   );
 }
