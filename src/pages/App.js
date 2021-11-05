@@ -264,7 +264,6 @@ function App() {
       radiobox.id = 'querySelected';
       radiobox.value = 'query';
       radiobox.name = 'queryGroup';
-      radiobox.onclick = selectRow;
 
       // Append a text node to the cell
       newText = document.createTextNode(tableQuery);
@@ -334,8 +333,8 @@ function App() {
         localStorage.setItem(inputToQueryForTable() + "URL", JSON.stringify(responseURLs));
         localStorage.setItem(inputToQueryForTable() + "INFO", JSON.stringify(extensionsInfo));
         // Retrieve the object from storage
-        var retrievedObject = localStorage.getItem(inputToQueryForTable() + "INFO");
-        console.log(JSON.parse(retrievedObject));
+        /*var retrievedObject = localStorage.getItem(inputToQueryForTable() + "INFO");
+        console.log(JSON.parse(retrievedObject));*/
       }
       addRowsToQueryTable(inputToQueryForTable(), responseURLs, extensionsInfo);
       document.getElementById("status").style.display = "none";
@@ -409,12 +408,14 @@ function App() {
           <tbody>
           </tbody>
         </table>
-        <div className="right-buttons"><Link id="nextPage"
-          to={{
-            pathname: "/seleccionarWebs",
-            state: { name: 'purpose', age: 25, city: 'Antwerp' }
-          }}>
-          <button className="btn btn-primary">Next</button></Link>
+        <div className="right-buttons">
+          <Link id="nextPage"
+            to={{
+              pathname: "/seleccionarWebs",
+              state: { name: 'purpose', age: 25, city: 'Antwerp' }
+            }}
+            onClick={() => selectRow()}>
+            <button className="btn btn-primary">Next</button></Link>
         </div>
       </div><script>selectRow();</script>
     </div>

@@ -6,14 +6,10 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function SeleccionarWebs() {
 
-
-
-
   var localStorage = window.localStorage; // needed to storage the info of the previous extensions
   var query = localStorage.getItem("query");
   var URLs;
   var extensionInfo;
-
 
   React.useEffect(() => loadTable());
 
@@ -33,9 +29,22 @@ function SeleccionarWebs() {
     }
   }
 
+  function selectRows() {
+    let URLs = [];
+    var checkboxes = document.getElementsByName("queryGroup");
+    let i = 1;
+    var table = document.getElementById("extensionsTable");
+    for (var checkbox of checkboxes) {
+      if (checkbox.checked) {
+        URLs.push(table.rows[i].cells[6].children[0].href);
+      }
+      i++;
+    }
+    localStorage.setItem("commentsURLs", JSON.stringify(URLs));
+  }
+
   function loadTable() {
     if (query !== null) {
-
 
       var i = 0;
       extensionInfo.forEach(extension => {
@@ -139,7 +148,7 @@ function SeleccionarWebs() {
       <div className="right-buttons">
         <Link to="/"><button className="btn btn-primary">Back</button></Link>
         &nbsp;
-        <Link to="/agruparTags"><button className="btn btn-primary">Next</button></Link>
+        <Link to="/agruparTags" onClick={() => selectRows()}><button className="btn btn-primary">Next</button></Link>
       </div>
       <br />
     </div>
