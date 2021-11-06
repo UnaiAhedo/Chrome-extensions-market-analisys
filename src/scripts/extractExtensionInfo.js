@@ -19,7 +19,6 @@ const argv = (() => {
     const browser = await puppeteer.launch(
         {
             headless: true, // launch headful mode
-            slowMo: 250, // slow down puppeteer script so that it's easier to follow visually
         }
     );
     const page = await browser.newPage();
@@ -34,7 +33,6 @@ const argv = (() => {
     await page.waitForTimeout(1000);
 
     result = []
-
 
     async function getInfo(page) {
         return await page.evaluate(() => {
@@ -68,6 +66,8 @@ const argv = (() => {
             return info;
         })
     }
+    
+    await page.waitForTimeout(1000);
 
     result.push(...await getInfo(page));
 

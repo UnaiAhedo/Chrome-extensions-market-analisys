@@ -11,9 +11,23 @@ function SeleccionarWebs() {
   var URLs;
   var extensionInfo;
 
+  chargePage();
+
   React.useEffect(() => loadTable());
 
-  chargePage();
+  function selectAllCheckbox() {
+    var aInputs = document.getElementsByTagName('input');
+    for (var i = 0; i < aInputs.length; i++) {
+      aInputs[i].checked = true;
+    }
+  }
+
+  function unselectAllCheckbox() {
+    var aInputs = document.getElementsByTagName('input');
+    for (var i = 0; i < aInputs.length; i++) {
+      aInputs[i].checked = false;
+    }
+  }
 
   function Child() {
     let data = useLocation();
@@ -143,6 +157,12 @@ function SeleccionarWebs() {
           <tbody>
           </tbody>
         </table>
+      </div>
+      <br />
+      <div className="right-buttons">
+        <button className="btn btn-primary" onClick={selectAllCheckbox}>Select all</button>
+        &nbsp;
+        <button className="btn btn-primary" onClick={unselectAllCheckbox}>Unselect all</button>
       </div>
       <br />
       <div className="right-buttons">

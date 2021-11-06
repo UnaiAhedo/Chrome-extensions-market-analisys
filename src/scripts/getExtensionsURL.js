@@ -19,13 +19,14 @@ const argv = (() => {
     const browser = await puppeteer.launch(
         {
             headless: true, // launch headful mode
-            slowMo: 250, // slow down puppeteer script so that it's easier to follow visually
         }
     );
     const page = await browser.newPage();
 
-    await page.goto('https://chrome.google.com/webstore/search/' + argv['query'] + '?_category=extensions');
-    await page.waitForTimeout(1000);
+    //await page.goto('https://chrome.google.com/webstore/search/' + argv['query'] + '?_category=extensions');
+    await page.goto('https://chrome.google.com/webstore/search/annotation AND (highlight)?_category=extensions');
+    
+    await page.waitForTimeout(500);
 
     // accept Google's conditions / cookies
     await page.waitForSelector('form > div > div > button > span')
@@ -49,6 +50,8 @@ const argv = (() => {
             return urls;
         })
     }
+
+    await page.waitForTimeout(200);
 
     result.push(...await getURLs(page));
 

@@ -22,14 +22,20 @@ function App() {
           { query }
         )
       }).then(res => res.text())
-        .then(text => JSON.parse(text));
+        .then(text => JSON.parse(text))
+        .catch((error) => {
+          console.log(error)
+        });
     }
   }
 
   async function getURLs(query) {
     return await fetch('http://localhost:4000/searchExtensions?q=' + query) // the query is formed following the 5Ws
       .then(res => res.text())
-      .then(text => JSON.parse(text));
+      .then(text => JSON.parse(text))
+      .catch((error) => {
+        console.log(error)
+      });
   }
 
   function inputToQueryForTable() { // Gives format to the query to be displayed in the result table
@@ -128,19 +134,6 @@ function App() {
     return query;
   }
 
-  function selectRow() {
-    var radios = document.getElementsByName("queryGroup");
-    let i = 1;
-    for (var radio of radios) {
-      if (radio.checked) {
-        break;
-      }
-      i++;
-    }
-    var table = document.getElementById("resultTable");
-    localStorage.setItem("query", table.rows[i].cells[1].innerText);
-  }
-
   function inputToQuery(purpose, input, query) { // Return the query with the format to send it to the scrapping service
     var first = true;
     if (purpose) { // The purpose being the first one, have to be a little different that the other ones
@@ -232,7 +225,7 @@ function App() {
     var newText4;
     var newText5;
 
-    if (URLs.length !== 0) {
+    if (extensionInfo != null) {
       // Get the blockbusters, stars >= 5
       let blockbusters = 0;
       extensionInfo.forEach(element => {
@@ -298,6 +291,24 @@ function App() {
     newCell6.appendChild(newText5);
   }
 
+  function selectRow() {
+    var radios = document.getElementsByName("queryGroup");
+    let i = 1;
+    for (var radio of radios) {
+      if (radio.checked) {
+        break;
+      }
+      i++;
+    }
+    var table = document.getElementById("resultTable");
+    if (table.rows[i] != null) {
+      localStorage.setItem("query", table.rows[i].cells[1].innerText);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   async function searchWebs() {
     var purpose = document.getElementById("purpose").value.replace(/ /g, '');
     if (purpose !== '') {
@@ -326,7 +337,7 @@ function App() {
       // Get the URLs of the query, thos extension info and add them to the table
       var responseURLs = await getURLs(query);
 
-      if (responseURLs.length !== 0) {
+      if (responseURLs != null) {
         var extensionsInfo = await getDescriptions(responseURLs);
 
         // Put the object into storage

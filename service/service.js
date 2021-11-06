@@ -14,21 +14,20 @@ app.listen(4000, () => {
 app.get('/searchExtensions', async (req, res) => {
   const browser = await puppeteer.launch(
     {
-      headless: true, // launch headful mode
-      slowMo: 250, // slow down puppeteer script so that it's easier to follow visually
+      headless: true // launch headful mode
     }
   );
   const page = await browser.newPage();
   await page.goto(req.query.q);
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(500);
 
   // accept Google's conditions / cookies
-  await page.waitForSelector('form > div > div > button > span')
-  await page.click('form > div > div > button > span')
-
-  await page.waitForTimeout(1000);
+  await page.waitForSelector('form > div > div > button > span');
+  await page.click('form > div > div > button > span');
 
   let result = []
+
+  await page.waitForTimeout(2000);
 
   result.push(...await getURLs(page));
 
@@ -44,32 +43,36 @@ app.post('/extractExtensionInfo', async (req, res) => {
 
   let result = []
 
-  for (let index = 0; index < URLs.length; index++) { // for each URL get the info
+  const browser = await puppeteer.launch(
+    {
+      headless: true // launch headful mode
+    }
+  );
+  let firstTime = true;
 
-    const browser = await puppeteer.launch(
-      {
-        headless: true, // launch headful mode
-        slowMo: 250, // slow down puppeteer script so that it's easier to follow visually
-      }
-    );
+  for (let index = 0; index < URLs.length; index++) { // for each URL get the info
 
     const page = await browser.newPage();
 
     // await page.goto(req.query.q); // old version
     await page.goto(URLs[index]);
-    await page.waitForTimeout(1000);
 
-    // accept Google's conditions / cookies
-    await page.waitForSelector('form > div > div > button > span')
-    await page.click('form > div > div > button > span')
+    if (firstTime) {
+      await page.waitForTimeout(1000);
+      // accept Google's conditions / cookies
+      await page.waitForSelector('form > div > div > button > span')
+      await page.click('form > div > div > button > span')
+      firstTime = false;
+    }
 
-    await page.waitForTimeout(1000);
-
+    await page.waitForTimeout(1100);
 
     result.push(...await getInfo(page));
-    await browser.close();
+
+    await page.close();
   }
   // console.log(JSON.stringify(result));
+  await browser.close();
   res.send(JSON.stringify(result));
 })
 
@@ -185,24 +188,43 @@ async function extractComments(page) {
 
 async function getInfo(page) {
   return await page.evaluate(() => {
-
     let info = [];
 
     extensionName = document.querySelector("h1.e-f-w").textContent;
 
-    usersTotal = document.querySelector("span.e-f-ih").getAttribute("title").replace(" usuarios", '').replace(" users", '');
+    if (usersTotal = document.querySelector("span.e-f-ih") != null) {
+      usersTotal = document.querySelector("span.e-f-ih").getAttribute("title").replace(" usuarios", '').replace(" users", '');
+    } else {
+      usersTotal = 0;
+    }
 
     // rule of 3: 100% of width = 5 stars
     //            the width that we retrieve = x stars
-    starsString = document.querySelector("div.t9Fs9c").getAttribute("style").replace("width:", '').replace("%", '');
+    if (document.querySelector("div.t9Fs9c") != null) {
+      starsString = document.querySelector("div.t9Fs9c").getAttribute("style").replace("width:", '').replace("%", '');
+    } else {
+      starsString = 0;
+    }
 
     stars = ((parseFloat(starsString) * 5) / 100).toFixed(1);
 
-    description = document.querySelector("pre.C-b-p-j-Oa").textContent.replace(/\n/g, ' ');
+    if (document.querySelector("pre.C-b-p-j-Oa") != null) {
+      description = document.querySelector("pre.C-b-p-j-Oa").textContent.replace(/\n/g, ' ');
+    } else {
+      description = '';
+    }
 
-    version = document.querySelector("span.h-C-b-p-D-md").textContent;
+    if (document.querySelector("span.h-C-b-p-D-md") != null) {
+      version = document.querySelector("span.h-C-b-p-D-md").textContent;
+    } else {
+      version = '';
+    }
 
-    lastUpdate = document.querySelector("span.h-C-b-p-D-xh-hh").textContent;
+    if (document.querySelector("span.h-C-b-p-D-xh-hh") != null) {
+      lastUpdate = document.querySelector("span.h-C-b-p-D-xh-hh").textContent;
+    } else {
+      lastUpdate = '';
+    }
 
     info.push({
       "name": extensionName,
