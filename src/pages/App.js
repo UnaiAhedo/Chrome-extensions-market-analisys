@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from "react-router-dom";
-import { withRouter } from "react-router";
+import { Link } from 'react-router-dom';
+import { withRouter } from 'react-router';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function App() {
@@ -40,8 +40,8 @@ function App() {
 
   function inputToQueryForTable() { // Gives format to the query to be displayed in the result table
     var first = true;
-    var query = "Purpose: "
-    var purpose = document.getElementById("purpose").value.replace(/ /g, '').split(',');
+    var query = 'Purpose: '
+    var purpose = document.getElementById('purpose').value.replace(/ /g, '').split(',');
     if (purpose.length === 1) {
       query += "'" + purpose + "'";
     } else {
@@ -50,14 +50,14 @@ function App() {
           first = false;
           query += "'" + element;
         } else {
-          query += " OR " + element;
+          query += ' OR ' + element;
         }
       });
       query += "'";
     }
 
     first = true;
-    var how = document.getElementById("how").value.replace(/ /g, '');
+    var how = document.getElementById('how').value.replace(/ /g, '');
     if (how !== '') {
       how = how.split(',')
       if (how.length === 1) {
@@ -68,7 +68,7 @@ function App() {
             first = false;
             query += " AND How: '" + element;
           } else {
-            query += " OR " + element;
+            query += ' OR ' + element;
           }
         });
         query += "'";
@@ -76,7 +76,7 @@ function App() {
     }
 
     first = true;
-    var why = document.getElementById("why").value.replace(/ /g, '');
+    var why = document.getElementById('why').value.replace(/ /g, '');
     if (why !== '') {
       why = why.split(',')
       if (why.length === 1) {
@@ -87,7 +87,7 @@ function App() {
             first = false;
             query += " AND Why: '" + element;
           } else {
-            query += " OR " + element;
+            query += ' OR ' + element;
           }
         });
         query += "'";
@@ -95,7 +95,7 @@ function App() {
     }
 
     first = true;
-    var what = document.getElementById("what").value.replace(/ /g, '');
+    var what = document.getElementById('what').value.replace(/ /g, '');
     if (what !== '') {
       what = what.split(',')
       if (what.length === 1) {
@@ -106,7 +106,7 @@ function App() {
             first = false;
             query += " AND What: '" + element;
           } else {
-            query += " OR " + element;
+            query += ' OR ' + element;
           }
         });
         query += "'";
@@ -114,7 +114,7 @@ function App() {
     }
 
     first = true;
-    var where = document.getElementById("where").value.replace(/ /g, '');
+    var where = document.getElementById('where').value.replace(/ /g, '');
     if (where !== '') {
       where = where.split(',')
       if (where.length === 1) {
@@ -125,7 +125,7 @@ function App() {
             first = false;
             query += " AND Where: '" + element;
           } else {
-            query += " OR " + element;
+            query += ' OR ' + element;
           }
         });
         query += "'";
@@ -141,13 +141,13 @@ function App() {
       if (input.length === 1) {
         query += input;
       } else {
-        query += "(";
+        query += '(';
         input.forEach(element => {
           if (first) {
             first = false;
             query += element;
           } else {
-            query += " OR " + element;
+            query += ' OR ' + element;
           }
         });
         query += ")";
@@ -156,19 +156,19 @@ function App() {
       if (input !== '') { // 
         input = input.split(',');
         if (input.length === 1) {
-          query += " AND (" + input + ")";
+          query += ' AND (' + input + ')';
         } else {
-          query += " AND (";
+          query += ' AND (';
           first = true;
           input.forEach(element => {
             if (first) {
               first = false;
               query += element;
             } else {
-              query += " OR " + element;
+              query += ' OR ' + element;
             }
           });
-          query += ")";
+          query += ')';
         }
       }
     }
@@ -176,31 +176,31 @@ function App() {
   }
 
   function clearInputs() {
-    var elements = document.getElementsByTagName("input");
+    var elements = document.getElementsByTagName('input');
     for (var i = 0; i < elements.length; i++) {
-      if (elements[i].type === "text") {
-        elements[i].value = "";
+      if (elements[i].type === 'text') {
+        elements[i].value = '';
       }
     }
-    document.getElementById("status").innerText = '';
+    document.getElementById('status').innerText = '';
   }
 
   function disableButtons() {
-    let buttons = document.querySelectorAll("button");
+    let buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
       button.disabled = true;
     });
-    let link = document.getElementById("nextPage");
-    link.style.pointerEvents = "none";
+    let link = document.getElementById('nextPage');
+    link.style.pointerEvents = 'none';
   }
 
   function activateButtons() {
-    let buttons = document.querySelectorAll("button");
+    let buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
       button.disabled = false;
     });
-    let link = document.getElementById("nextPage");
-    link.style.pointerEvents = "auto";
+    let link = document.getElementById('nextPage');
+    link.style.pointerEvents = 'auto';
   }
 
   function addRowsToQueryTable(tableQuery, URLs, extensionInfo) {
@@ -229,7 +229,7 @@ function App() {
       // Get the blockbusters, stars >= 5
       let blockbusters = 0;
       extensionInfo.forEach(element => {
-        if (element["stars"] >= 5) blockbusters++;
+        if (element['stars'] >= 5) blockbusters++;
       });
 
       // Get the number of new searchs, if previous URLs didn't have one of the news, that's a new one
@@ -270,15 +270,15 @@ function App() {
       newText5 = document.createTextNode(deletedSearchs);
       previousURLs = URLs;
     } else {
-      radiobox = document.createTextNode("");
+      radiobox = document.createTextNode('');
       newText = document.createTextNode(tableQuery);
-      newText2 = document.createTextNode("0");
-      newText3 = document.createTextNode("0");
-      newText4 = document.createTextNode("0");
+      newText2 = document.createTextNode('0');
+      newText3 = document.createTextNode('0');
+      newText4 = document.createTextNode('0');
       if (previousURLs !== null) {
         newText5 = document.createTextNode(previousURLs.length);
       } else {
-        newText5 = document.createTextNode("0");
+        newText5 = document.createTextNode('0');
       }
       previousURLs = null;
     }
@@ -292,7 +292,7 @@ function App() {
   }
 
   function selectRow() {
-    var radios = document.getElementsByName("queryGroup");
+    var radios = document.getElementsByName('queryGroup');
     let i = 1;
     for (var radio of radios) {
       if (radio.checked) {
@@ -300,9 +300,9 @@ function App() {
       }
       i++;
     }
-    var table = document.getElementById("resultTable");
+    var table = document.getElementById('resultTable');
     if (table.rows[i] != null) {
-      localStorage.setItem("query", table.rows[i].cells[1].innerText);
+      localStorage.setItem('query', table.rows[i].cells[1].innerText);
       return true;
     } else {
       return false;
@@ -310,29 +310,29 @@ function App() {
   }
 
   async function searchWebs() {
-    var purpose = document.getElementById("purpose").value.replace(/ /g, '');
+    var purpose = document.getElementById('purpose').value.replace(/ /g, '');
     if (purpose !== '') {
       disableButtons();
       // Create the query for the search
-      var query = "https://chrome.google.com/webstore/search/";
+      var query = 'https://chrome.google.com/webstore/search/';
 
       query = inputToQuery(true, purpose, query);
 
-      var how = document.getElementById("how").value.replace(/ /g, '');
+      var how = document.getElementById('how').value.replace(/ /g, '');
       query = inputToQuery(false, how, query);
 
-      var why = document.getElementById("why").value.replace(/ /g, '');
+      var why = document.getElementById('why').value.replace(/ /g, '');
       query = inputToQuery(false, why, query);
 
-      var what = document.getElementById("what").value.replace(/ /g, '');
+      var what = document.getElementById('what').value.replace(/ /g, '');
       query = inputToQuery(false, what, query);
 
-      var where = document.getElementById("where").value.replace(/ /g, '');
+      var where = document.getElementById('where').value.replace(/ /g, '');
       query = inputToQuery(false, where, query);
 
-      query += "?_category=extensions";
+      query += '?_category=extensions';
 
-      document.getElementById("status").style.display = "";
+      document.getElementById('status').style.display = "";
 
       // Get the URLs of the query, thos extension info and add them to the table
       var responseURLs = await getURLs(query);
@@ -341,17 +341,17 @@ function App() {
         var extensionsInfo = await getDescriptions(responseURLs);
 
         // Put the object into storage
-        localStorage.setItem(inputToQueryForTable() + "URL", JSON.stringify(responseURLs));
-        localStorage.setItem(inputToQueryForTable() + "INFO", JSON.stringify(extensionsInfo));
+        localStorage.setItem(inputToQueryForTable() + 'URL', JSON.stringify(responseURLs));
+        localStorage.setItem(inputToQueryForTable() + 'INFO', JSON.stringify(extensionsInfo));
         // Retrieve the object from storage
         /*var retrievedObject = localStorage.getItem(inputToQueryForTable() + "INFO");
         console.log(JSON.parse(retrievedObject));*/
       }
       addRowsToQueryTable(inputToQueryForTable(), responseURLs, extensionsInfo);
-      document.getElementById("status").style.display = "none";
+      document.getElementById('status').style.display = 'none';
       activateButtons();
     } else {
-      document.getElementById("status").innerText = "Purpose can't be empty.";
+      document.getElementById('status').innerText = "Purpose can't be empty.";
     }
   }
 

@@ -24,6 +24,7 @@
     "react-router-dom": "^5.3.0",
     "react-scripts": "^4.0.3",
     "react-tagcloud": "^2.1.1",
+    "smalltalk": "^4.0.7",
     "web-vitals": "^1.1.2"
   },
   "scripts": {

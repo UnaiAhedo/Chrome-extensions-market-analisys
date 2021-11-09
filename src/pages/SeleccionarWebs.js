@@ -1,13 +1,13 @@
-import React from "react";
-import { withRouter } from "react-router";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import React from 'react';
+import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function SeleccionarWebs() {
 
   var localStorage = window.localStorage; // needed to storage the info of the previous extensions
-  var query = localStorage.getItem("query");
+  var query = localStorage.getItem('query');
   var URLs;
   var extensionInfo;
 
@@ -35,26 +35,26 @@ function SeleccionarWebs() {
   }
 
   function chargePage() {
-    query = localStorage.getItem("query");
+    query = localStorage.getItem('query');
     if (query !== null) {
-      URLs = JSON.parse(localStorage.getItem(query + "URL"));
-      extensionInfo = JSON.parse(localStorage.getItem(query + "INFO"));
+      URLs = JSON.parse(localStorage.getItem(query + 'URL'));
+      extensionInfo = JSON.parse(localStorage.getItem(query + 'INFO'));
       //localStorage.clear();
     }
   }
 
   function selectRows() {
     let URLs = [];
-    var checkboxes = document.getElementsByName("queryGroup");
+    var checkboxes = document.getElementsByName('queryGroup');
     let i = 1;
-    var table = document.getElementById("extensionsTable");
+    var table = document.getElementById('extensionsTable');
     for (var checkbox of checkboxes) {
       if (checkbox.checked) {
         URLs.push(table.rows[i].cells[6].children[0].href);
       }
       i++;
     }
-    localStorage.setItem("commentsURLs", JSON.stringify(URLs));
+    localStorage.setItem('commentsURLs', JSON.stringify(URLs));
   }
 
   function loadTable() {
@@ -93,21 +93,21 @@ function SeleccionarWebs() {
         checkbox.name = 'queryGroup';
 
         descriptionTextArea = document.createElement('textarea');
-        descriptionTextArea.setAttribute("readonly", '');
-        descriptionTextArea.value = extension["description"];
-        descriptionTextArea.style.width = "600px";
+        descriptionTextArea.setAttribute('readonly', '');
+        descriptionTextArea.value = extension['description'];
+        descriptionTextArea.style.width = '600px';
 
         linkURL = document.createElement('a');
-        var linkText = document.createTextNode("Extension page");
+        var linkText = document.createTextNode('Extension page');
         linkURL.appendChild(linkText);
         linkURL.href = URLs[i];
-        linkURL.setAttribute("target", "_blank");
+        linkURL.setAttribute('target', '_blank');
 
-        newText = document.createTextNode(extension["name"]);
-        newText2 = document.createTextNode(extension["stars"]);
-        newText3 = document.createTextNode(extension["users"]);
-        newText4 = document.createTextNode(extension["lastUpdate"]);
-        newText5 = document.createTextNode(extension["version"]);
+        newText = document.createTextNode(extension['name']);
+        newText2 = document.createTextNode(extension['stars']);
+        newText3 = document.createTextNode(extension['users']);
+        newText4 = document.createTextNode(extension['lastUpdate']);
+        newText5 = document.createTextNode(extension['version']);
 
         newCell.appendChild(checkbox);
         newCell2.appendChild(newText);
