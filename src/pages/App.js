@@ -422,8 +422,7 @@ function App() {
         <div className="right-buttons">
           <Link id="nextPage"
             to={{
-              pathname: "/seleccionarWebs",
-              state: { name: 'purpose', age: 25, city: 'Antwerp' }
+              pathname: "/seleccionarWebs"
             }}
             onClick={() => selectRow()}>
             <button className="btn btn-primary">Next</button></Link>

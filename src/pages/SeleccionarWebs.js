@@ -1,7 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function SeleccionarWebs() {
@@ -27,11 +26,6 @@ function SeleccionarWebs() {
     for (var i = 0; i < aInputs.length; i++) {
       aInputs[i].checked = false;
     }
-  }
-
-  function Child() {
-    let data = useLocation();
-    console.log(data.state); //state would be in data.state//
   }
 
   function chargePage() {
