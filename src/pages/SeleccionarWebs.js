@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function SeleccionarWebs() {
-
-  var localStorage = window.localStorage; // needed to storage the info of the previous extensions
   var query = localStorage.getItem('query');
   var URLs;
   var extensionInfo;
@@ -29,7 +27,6 @@ function SeleccionarWebs() {
   }
 
   function chargePage() {
-    query = localStorage.getItem('query');
     if (query !== null) {
       URLs = JSON.parse(localStorage.getItem(query + 'URL'));
       extensionInfo = JSON.parse(localStorage.getItem(query + 'INFO'));

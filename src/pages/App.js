@@ -419,6 +419,7 @@ function App() {
           <tbody>
           </tbody>
         </table>
+        <br />
         <div className="right-buttons">
           <Link id="nextPage"
             to={{

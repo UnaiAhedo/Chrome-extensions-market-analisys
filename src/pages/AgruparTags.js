@@ -227,7 +227,7 @@ class AgruparTags extends React.Component {
                         </div>
                     </div>
                     <div>
-                        <h2>Current aggrupation</h2>
+                        <h2>Current aggrupations</h2>
                         <p>You can delete an aggrupation selecting it and clicking on "Delete".</p>
                         <table id="aggrupationTable" className="center-spacing">
                             <thead>
@@ -240,6 +240,7 @@ class AgruparTags extends React.Component {
                             <tbody>
                             </tbody>
                         </table>
+                        <br />
                         <div className="right-buttons">
                             <button className="btn btn-primary" onClick={this.removeAggrupation}>Delete</button>
                             &nbsp;
