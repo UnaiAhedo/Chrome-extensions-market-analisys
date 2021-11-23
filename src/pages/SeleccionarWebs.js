@@ -30,7 +30,6 @@ function SeleccionarWebs() {
     if (query !== null) {
       URLs = JSON.parse(localStorage.getItem(query + 'URL'));
       extensionInfo = JSON.parse(localStorage.getItem(query + 'INFO'));
-      //localStorage.clear();
     }
   }
 

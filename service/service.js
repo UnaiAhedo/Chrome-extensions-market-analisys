@@ -58,14 +58,14 @@ app.post('/extractExtensionInfo', async (req, res) => {
     await page.goto(URLs[index]);
 
     if (firstTime) {
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(1050);
       // accept Google's conditions / cookies
       await page.waitForSelector('form > div > div > button > span')
       await page.click('form > div > div > button > span')
       firstTime = false;
     }
 
-    await page.waitForTimeout(1100);
+    await page.waitForTimeout(1125);
 
     result.push(...await getInfo(page));
 
@@ -80,54 +80,45 @@ app.post('/extractComments', async (req, res) => {
 
   let URLs = req.body.query;
 
-  let result = []
+  let result = [];
+
+  const browser = await puppeteer.launch(
+    {
+      headless: true
+    }
+  );
+
+  let firstTime = true;
 
   for (let index = 0; index < URLs.length; index++) { // for each URL get the info
-    const browser = await puppeteer.launch(
-      {
-        headless: true, // launch headful mode
-        slowMo: 250, // slow down puppeteer script so that it's easier to follow visually
-      }
-    );
+
     const page = await browser.newPage();
-    const navigationPromise = page.waitForNavigation()
-    // Gitmate (w/o reviews)
-    // await page.goto('https://chrome.google.com/webstore/detail/bbaoeligdffnfjmibohaijpchomoljej');
 
-    // Block Site 
-    // await page.goto('https://chrome.google.com/webstore/detail/blocksite-block-websites/eiimnmioipafcokbfikbljfdeojpcgbh');
-    //await page.goto('https://chrome.google.com/webstore/detail/' + argv['extensionId']);
-    //await page.goto(req.query.q);
     await page.goto(URLs[index]);
-    // eiimnmioipafcokbfikbljfdeojpcgbh
-
-    // Screencastify 
-    // await page.goto('https://chrome.google.com/webstore/detail/screencastify-screen-vide/mmeijimgabbpbgpdklnllpncmdofkcpn');
-
-    await page.waitForTimeout(1000);
 
     // accept Google's conditions / cookies
-    await page.waitForSelector('form > div > div > button > span')
-    await page.click('form > div > div > button > span')
+    if (firstTime) {
+      await page.waitForTimeout(1050);
+      // accept Google's conditions / cookies
+      await page.waitForSelector('form > div > div > button > span')
+      await page.click('form > div > div > button > span')
+      firstTime = false;
+    }
 
-    await page.waitForTimeout(1000);
-    // await navigationPromise
-
-    page.on('console', (msg) => {
-      if (!msg.text().includes('Failed to load resource')) {
-        console.log(msg.text())
-      }
-    });
+    await page.waitForTimeout(1050);
 
     let hasNext = true;
 
     let maxPages = 3;
 
+    var comments2 = [];
+
     var comments = {};
 
     while (hasNext && maxPages > 0) {
+      await page.waitForTimeout(1050);
       comments = await extractComments(page);
-      result.push(comments);
+      comments2 = comments2.concat(comments);
       hasNext = await page.evaluate(() => {
         if (document.querySelector("body  a.dc-se").getAttribute("style") != "display: none;") {
           document.querySelector("body  a.dc-se").click();
@@ -135,12 +126,16 @@ app.post('/extractComments', async (req, res) => {
         }
         return false;
       });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(1050);
       maxPages--;
     }
-    await browser.close();
+    if(comments2.length > 0){
+      result.push(comments2);
+    }
+    await page.close();
   }
   //console.log(JSON.stringify(result));
+  await browser.close();
   res.send(JSON.stringify(result));
 })
 
@@ -168,7 +163,7 @@ async function extractComments(page) {
     comments.forEach(comment => {
       if (comment.querySelector(".ba-Eb-ba") != null) {
         if (comment.querySelector(".rsw-stars") != null) {
-          stars = comment.querySelector(".rsw-stars").ariaLabel.replace(" stars", "").replace(" estrellas", "");
+          stars = comment.querySelector(".rsw-stars").ariaLabel.replace(" stars", "").replace(" estrellas", "").replace(" star", "").replace(" estrella", "");
         }
         text = comment.querySelector(".ba-Eb-ba").innerText;
         author = comment.querySelector(".comment-thread-displayname").innerText;

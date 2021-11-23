@@ -7,6 +7,56 @@ const smalltalk = require('smalltalk');
 
 class AgruparTags extends React.Component {
 
+    async componentDidMount() {
+        var comments = await this.getComments(JSON.parse(localStorage.getItem('commentsURLs')));
+        console.log(comments);
+        /*this.prueba();*/
+    }
+
+    //var comments = await getComments(responseURLs);
+    async getComments(query) {
+        if (query.length !== 0) {
+            return await fetch('http://localhost:4000/extractComments', { // the body is a JSON with all the URLs from the extensions
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(
+                    { query }
+                )
+            }).then(res => res.text())
+                .then(text => JSON.parse(text));
+        }
+    }
+
+    async prueba() {
+        await fetch('http://localhost:8080/127.0.0.1:9651/hitec/classify/domain/google-play-reviews/', { // the body is a JSON with all the URLs from the extensions
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(
+                [{
+                    "review_id": "gp:AOqpTOGZvYM-YqGnUX8QFMhKPpBpxMdmrwqFo_n2gJCHpjt1y8cBP7A2jr7EFvRrKFSFJErgJdBG7rug5vKTnFo",
+                    "package_name": "",
+                    "rating": 5,
+                    "title": "",
+                    "body": "I'd wish the app to have and option to reset all the menus. "
+                },
+                {
+                    "review_id": "gp:AOqpTOGZvYM-YqGnUX8QFMhKPpBpxMdmrwqFo_n2gJCHpjt1y8cBP7A2jr7EFvRrKFSFJErgJdBG7rug5vKTnFo",
+                    "package_name": "",
+                    "rating": 1, "title": "",
+                    "body": "I can't save it like word. "
+                }]
+            )
+        }).then(res => res.text()
+            .then(text => console.log(JSON.parse(text))))
+            .catch((error) => {
+                console.log(error)
+            });
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -27,23 +77,9 @@ class AgruparTags extends React.Component {
         this.removeAggrupation = this.removeAggrupation.bind(this);
         this.removeAllAggrupations = this.removeAllAggrupations.bind(this);
         this.clearTags = this.clearTags.bind(this);
-    }
 
-    async getComments(query) {
-        if (query.length !== 0) {
-            return await fetch('http://localhost:4000/extractComments', { // the body is a JSON with all the URLs from the extensions
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(
-                    { query }
-                )
-            }).then(res => res.text())
-                .then(text => JSON.parse(text));
-        }
     }
-
+    
     removeAllAggrupations() {
         var aggrupations = JSON.parse(localStorage.getItem('aggrupations'));
         if (aggrupations != null) {
