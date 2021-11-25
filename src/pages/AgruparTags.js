@@ -8,9 +8,24 @@ const smalltalk = require('smalltalk');
 class AgruparTags extends React.Component {
 
     async componentDidMount() {
-        var comments = await this.getComments(JSON.parse(localStorage.getItem('commentsURLs')));
-        console.log(comments);
-        /*this.prueba();*/
+        var extensions = await this.getComments(JSON.parse(localStorage.getItem('commentsURLs')));
+        this.prueba(extensions);
+    }
+
+    async getFeaturesComments(extensions) {
+        let features = await fetch('http://0.0.0.0:8080/127.0.0.1:9651/hitec/classify/domain/google-play-reviews/', { // the body is a JSON with all the URLs from the extensions
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(extensions)
+        }).then(res => res.text()
+            .then(text => JSON.parse(text)))
+            .catch((error) => {
+                console.log(error)
+            });
+
+        return features.filter(comment => comment['cluster_is_feature_request'] === true);
     }
 
     //var comments = await getComments(responseURLs);
@@ -29,32 +44,26 @@ class AgruparTags extends React.Component {
         }
     }
 
-    async prueba() {
-        await fetch('http://localhost:8080/127.0.0.1:9651/hitec/classify/domain/google-play-reviews/', { // the body is a JSON with all the URLs from the extensions
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(
-                [{
-                    "review_id": "gp:AOqpTOGZvYM-YqGnUX8QFMhKPpBpxMdmrwqFo_n2gJCHpjt1y8cBP7A2jr7EFvRrKFSFJErgJdBG7rug5vKTnFo",
-                    "package_name": "",
-                    "rating": 5,
-                    "title": "",
-                    "body": "I'd wish the app to have and option to reset all the menus. "
-                },
-                {
-                    "review_id": "gp:AOqpTOGZvYM-YqGnUX8QFMhKPpBpxMdmrwqFo_n2gJCHpjt1y8cBP7A2jr7EFvRrKFSFJErgJdBG7rug5vKTnFo",
-                    "package_name": "",
-                    "rating": 1, "title": "",
-                    "body": "I can't save it like word. "
-                }]
-            )
-        }).then(res => res.text()
-            .then(text => console.log(JSON.parse(text))))
-            .catch((error) => {
-                console.log(error)
-            });
+    async prueba(extensions) {
+        extensions = extensions.map(function (extension) {
+            return extension.map(function (comment) {
+                var rComment = {};
+                rComment['review_id'] = comment.author;
+                rComment['package_name'] = '';
+                rComment['rating'] = comment.stars;
+                rComment['title'] = '';
+                rComment['body'] = comment.text;
+                return rComment;
+            })
+        })
+
+        extensions = extensions.flat(1);
+
+        console.log(extensions);
+
+        let features = await this.getFeaturesComments(extensions);
+
+        console.log(features);
     }
 
     constructor(props) {
@@ -79,7 +88,7 @@ class AgruparTags extends React.Component {
         this.clearTags = this.clearTags.bind(this);
 
     }
-    
+
     removeAllAggrupations() {
         var aggrupations = JSON.parse(localStorage.getItem('aggrupations'));
         if (aggrupations != null) {

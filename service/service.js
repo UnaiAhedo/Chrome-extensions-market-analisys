@@ -1,8 +1,8 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
-var cors = require('cors');
 const app = express();
 
+var cors = require('cors');
 app.use(cors());
 
 app.use(express.json());
@@ -69,6 +69,8 @@ app.post('/extractExtensionInfo', async (req, res) => {
 
     result.push(...await getInfo(page));
 
+    await page.waitForTimeout(150);
+
     await page.close();
   }
   // console.log(JSON.stringify(result));
@@ -129,7 +131,7 @@ app.post('/extractComments', async (req, res) => {
       await page.waitForTimeout(1050);
       maxPages--;
     }
-    if(comments2.length > 0){
+    if (comments2.length > 0) {
       result.push(comments2);
     }
     await page.close();
@@ -148,7 +150,7 @@ async function getURLs(page) {
     // for each web we get the URL
     // same as .map in navigator console
     webs.forEach(web => {
-      urls.push(web.querySelector('a.h-Ja-d-Ac').href);
+      urls.push(web.querySelector('a.h-Ja-d-Ac').href + '?hl=en');
     });
     return urls;
   })

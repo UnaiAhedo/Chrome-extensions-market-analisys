@@ -330,7 +330,7 @@ function App() {
       var where = document.getElementById('where').value.replace(/ /g, '');
       query = inputToQuery(false, where, query);
 
-      query += '?_category=extensions';
+      query += '?_category=extensions?hl=en';
 
       document.getElementById('status').style.display = "";
 
