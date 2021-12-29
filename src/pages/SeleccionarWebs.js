@@ -28,28 +28,35 @@ function SeleccionarWebs() {
 
   function chargePage() {
     if (query !== null) {
+      // Get the URLs and extensions info
       URLs = JSON.parse(localStorage.getItem(query + 'URL'));
       extensionInfo = JSON.parse(localStorage.getItem(query + 'INFO'));
     }
   }
 
+  // Save the selected row of the extensions in the local storage
+  // So the selected extensions will be accesible in the next step
   function selectRows() {
     let URLs = [];
+    let descriptions = [];
     var checkboxes = document.getElementsByName('queryGroup');
     let i = 1;
     var table = document.getElementById('extensionsTable');
     for (var checkbox of checkboxes) {
       if (checkbox.checked) {
         URLs.push(table.rows[i].cells[6].children[0].href);
+        descriptions.push(table.rows[i].cells[7].children[0].value);
       }
       i++;
     }
-    localStorage.setItem('commentsURLs', JSON.stringify(URLs));
+    if (URLs.length > 0) {
+      localStorage.setItem('commentsURLs', JSON.stringify(URLs));
+      localStorage.setItem('descriptions', JSON.stringify(descriptions));
+    }
   }
 
   function loadTable() {
     if (query !== null) {
-
       var i = 0;
       extensionInfo.forEach(extension => {
         var tbodyRef = document.getElementById('extensionsTable').getElementsByTagName('tbody')[0];
@@ -82,23 +89,27 @@ function SeleccionarWebs() {
         checkbox.value = 'query';
         checkbox.name = 'queryGroup';
 
+        // Text area for the description of the extension
         descriptionTextArea = document.createElement('textarea');
         descriptionTextArea.setAttribute('readonly', '');
         descriptionTextArea.value = extension['description'];
         descriptionTextArea.style.width = '600px';
 
+        // Create the link to the extension
         linkURL = document.createElement('a');
         var linkText = document.createTextNode('Extension page');
         linkURL.appendChild(linkText);
         linkURL.href = URLs[i];
         linkURL.setAttribute('target', '_blank');
 
+        // Append a text node to the cell
         newText = document.createTextNode(extension['name']);
         newText2 = document.createTextNode(extension['stars']);
         newText3 = document.createTextNode(extension['users']);
         newText4 = document.createTextNode(extension['lastUpdate']);
         newText5 = document.createTextNode(extension['version']);
 
+        // Append the elements to the nodes
         newCell.appendChild(checkbox);
         newCell2.appendChild(newText);
         newCell3.appendChild(newText2);

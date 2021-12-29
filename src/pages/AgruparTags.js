@@ -7,46 +7,76 @@ const smalltalk = require('smalltalk');
 
 class AgruparTags extends React.Component {
 
-    async componentDidMount() {
-        var extensions = await this.getComments(JSON.parse(localStorage.getItem('commentsURLs')));
-        this.prueba(extensions);
+    constructor(props) {
+        super(props);
+        this.state = {
+            data: [
+            ],
+            tags: []
+        };
+        this.createAggrupation = this.createAggrupation.bind(this);
+        this.removeAggrupation = this.removeAggrupation.bind(this);
+        this.removeAllAggrupations = this.removeAllAggrupations.bind(this);
+        this.clearTags = this.clearTags.bind(this);
+        this.search = this.search.bind(this);
+        this.insertTagsCloudtag = this.insertTagsCloudtag.bind(this);
     }
 
-    async getFeaturesComments(extensions) {
-        let features = await fetch('http://0.0.0.0:8080/127.0.0.1:9651/hitec/classify/domain/google-play-reviews/', { // the body is a JSON with all the URLs from the extensions
+    async search() {
+        this.disableButtons();
+        var extensionsComments, featureComments, keywords, descriptions = null;
+        var commentsURLs = JSON.parse(localStorage.getItem('commentsURLs'));
+        if (commentsURLs != null) {
+            extensionsComments = await this.getComments(commentsURLs);
+        }
+        if (extensionsComments != null) {
+            featureComments = await this.getFeaturedComments(extensionsComments);
+        }
+        if (featureComments != null) {
+            descriptions = JSON.parse(localStorage.getItem('descriptions'));
+            let quantity = document.getElementById("quantityInput").value;
+            keywords = await this.extractTopics(featureComments, descriptions, quantity);
+            console.log(keywords);
+            this.insertTagsCloudtag(keywords);
+        }
+        this.activateButtons();
+    }
+
+    insertTagsCloudtag(keywords) {
+        keywords = keywords.map(function (keyword) {
+            var rKeyword = {};
+            rKeyword['value'] = keyword.keyword;
+            rKeyword['count'] = keyword.rake;
+            return rKeyword;
+        })
+        console.log(keywords);
+        this.setState({ data: keywords });
+    }
+
+    // Launch the fetch to the get the comments of the extensions
+    // This comments will be used in next steps
+    async getComments(query) {
+        return await fetch('http://127.0.0.1:4000/extractComments', { // the body is an array with all the URLs from the selected extensions
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(extensions)
-        }).then(res => res.text()
-            .then(text => JSON.parse(text)))
+            body: JSON.stringify(
+                { query }
+            )
+        }).then(res => res.text())
+            .then(text => JSON.parse(text))
             .catch((error) => {
-                console.log(error)
+                console.log(error);
             });
-
-        return features.filter(comment => comment['cluster_is_feature_request'] === true);
     }
 
-    //var comments = await getComments(responseURLs);
-    async getComments(query) {
-        if (query.length !== 0) {
-            return await fetch('http://localhost:4000/extractComments', { // the body is a JSON with all the URLs from the extensions
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(
-                    { query }
-                )
-            }).then(res => res.text())
-                .then(text => JSON.parse(text));
-        }
-    }
-
-    async prueba(extensions) {
-        extensions = extensions.map(function (extension) {
-            return extension.map(function (comment) {
+    // Launch the fetch to the get the comments that are a feature request or bug report
+    // This comments will be used in next steps
+    async getFeaturedComments(extensionsComments) {
+        // Map the comments to the correct format for the fetch 
+        extensionsComments = extensionsComments.map(function (extensionsComments) {
+            return extensionsComments.map(function (comment) {
                 var rComment = {};
                 rComment['review_id'] = comment.author;
                 rComment['package_name'] = '';
@@ -57,36 +87,95 @@ class AgruparTags extends React.Component {
             })
         })
 
-        extensions = extensions.flat(1);
+        // Flat the array to get all the comments in one array [comments]
+        extensionsComments = extensionsComments.flat(1);
 
-        console.log(extensions);
+        let features = await fetch('http://127.0.0.1:8080/127.0.0.1:9651/hitec/classify/domain/google-play-reviews/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(extensionsComments) // the body is an array of comments
+        }).then(res => res.text()
+            .then(text => JSON.parse(text)))
+            .catch((error) => {
+                console.log(error);
+            });
 
-        let features = await this.getFeaturesComments(extensions);
+        // Filter and remove all the comments that aren't a feature request
+        // or an bug report
+        features = features.filter(comment => comment['cluster_is_feature_request'] === true || comment['cluster_is_bug_report'] === true);
 
-        console.log(features);
+        if (features.length > 0) {
+            return features
+        } else {
+            return null;
+        }
     }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            data: [
-                { value: 'Save as word', count: 38 },
-                { value: 'Highlight', count: 30 },
-                { value: 'Delete marks', count: 28 },
-                { value: 'Export to drive', count: 25 },
-                { value: 'Save as PDF', count: 33 },
-                { value: 'Cut', count: 18 },
-                { value: 'Copy', count: 20 },
-                { value: 'Paste', count: 38 },
-                { value: 'Add comments', count: 30 }
-            ],
-            tags: []
-        };
-        this.createAggrupation = this.createAggrupation.bind(this);
-        this.removeAggrupation = this.removeAggrupation.bind(this);
-        this.removeAllAggrupations = this.removeAllAggrupations.bind(this);
-        this.clearTags = this.clearTags.bind(this);
+    // Launch the fetch that extract the topics/tags from the comments
+    async extractTopics(featureComments, descriptions, quantity) {
+        // Map the comments to the correct format for the fetch 
+        featureComments = featureComments.map(function (comment) {
+            var rComment = {};
+            rComment['author'] = comment.review_id;
+            rComment['date'] = '';
+            rComment['stars'] = comment.rating;
+            rComment['text'] = comment.body;
+            return rComment;
+        })
 
+        // Get the average rating for the comments
+        let average = featureComments.reduce((s, a) => parseInt(s) + parseInt(a.stars), 0) / featureComments.length;
+
+        // Add the description of the extension as a new comment
+        // With the average value of rating
+        // This way te application also got the description in consideration
+        descriptions = descriptions.map(function (description) {
+            var rDescription = {};
+            rDescription['author'] = '';
+            rDescription['date'] = '';
+            rDescription['stars'] = average;
+            rDescription['text'] = description;
+            return rDescription;
+        })
+        featureComments = featureComments.concat(descriptions);
+
+        let commentsKeywords = await fetch('http://127.0.0.1:8080/127.0.0.1:8000/topics?items=' + quantity, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(featureComments) // the body is an array with all the comments
+        }).then(res => res.text()
+            .then(text => JSON.parse(text)))
+            .catch((error) => {
+                console.log(error);
+            });
+
+        return commentsKeywords;
+    }
+
+    disableButtons() {
+        let buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
+        let link = document.getElementById('nextPage');
+        link.style.pointerEvents = 'none';
+        link = document.getElementById('previousPage');
+        link.style.pointerEvents = 'none';
+    }
+
+    activateButtons() {
+        let buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.disabled = false;
+        });
+        let link = document.getElementById('nextPage');
+        link.style.pointerEvents = 'auto';
+        link = document.getElementById('previousPage');
+        link.style.pointerEvents = 'auto';
     }
 
     removeAllAggrupations() {
@@ -110,6 +199,7 @@ class AgruparTags extends React.Component {
     }
 
     removeAggrupation() {
+        // Get the selected aggrupation/s
         var rowsNumber = document.querySelectorAll('input[name=aggrupationSelected]:checked').length;
         var table = document.getElementById('aggrupationTable');
         if (rowsNumber !== 0) {
@@ -117,14 +207,15 @@ class AgruparTags extends React.Component {
                 .confirm('Delete aggrupations', 'You are going to delete ' + rowsNumber + ' aggrupations. Are you sure?')
                 .then(() => {
                     let i = 1;
+                    // For each aggrupation
                     while (i < table.rows.length) {
                         if (table.rows[i].cells[0].children[0].checked) {
+                            // Remove it from the table
                             let aggrupations = JSON.parse(localStorage.getItem('aggrupations'));
                             let aggrupationName = table.rows[i].cells[1].innerHTML;
                             aggrupations = aggrupations.filter(val => val !== aggrupationName);
+                            // Remove it from the local storage
                             localStorage.setItem('aggrupations', JSON.stringify(aggrupations));
-                            localStorage.removeItem(aggrupationName);
-                            table.deleteRow(i);
                             this.setState({ data: this.state.data.concat(this.state[aggrupationName]) });
                             delete this.state[aggrupationName];
                         } else {
@@ -153,6 +244,7 @@ class AgruparTags extends React.Component {
             var newText;
             var newText2;
 
+            // Create the checkbox for selecting the extensions
             checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = 'aggrupationSelected';
@@ -172,6 +264,7 @@ class AgruparTags extends React.Component {
             });
             newText2 = document.createTextNode(tagsString);
 
+            // Append the elements to the nodes
             newCell.appendChild(checkbox);
             newCell2.appendChild(newText);
             newCell3.appendChild(newText2);
@@ -181,6 +274,8 @@ class AgruparTags extends React.Component {
     async createAggrupation() {
         var aggrupationName = '';
         var aggrupations;
+
+        // Get the aggrupation name from the user
         await smalltalk
             .prompt('Agrupation name', 'Introduce the name for the tags agrupation:')
             .then((value) => {
@@ -188,6 +283,7 @@ class AgruparTags extends React.Component {
             }).catch(() => {
                 console.log('cancel');
             });
+        // Check if it is possible to create the aggrupation
         if (aggrupationName !== '' && this.state.tags !== 0) {
             aggrupations = JSON.parse(localStorage.getItem('aggrupations'));
             if (aggrupations == null || !aggrupations.includes(aggrupationName)) {
@@ -197,6 +293,7 @@ class AgruparTags extends React.Component {
                     aggrupations = [];
                     aggrupations.push(aggrupationName);
                 }
+                // Save the agruppation name and the tags inside it
                 localStorage.setItem('aggrupations', JSON.stringify(aggrupations));
                 localStorage.setItem(aggrupationName, JSON.stringify(this.state.tags));
                 this.addRow(aggrupationName);
@@ -210,7 +307,6 @@ class AgruparTags extends React.Component {
             } else {
                 alert("Already exists an aggrupation with that name.")
             }
-
         }
     }
 
@@ -244,6 +340,14 @@ class AgruparTags extends React.Component {
                 </div>
                 <div className="function-explanation">
                     <div>
+                        <h2>Tags quantity </h2>
+                        <p>Introduce the number of tags that you want to extract from the previous selected extensions. This process will take a time. (The minimum value is 15).</p>
+                        <input id='quantityInput' type='number' defaultValue='15' min='15' />
+                        &nbsp;
+                        <button className="btn btn-primary" onClick={this.search}>Search keywords</button>
+                    </div>
+                    <br />
+                    <div>
                         <h2>Tags aggrupation</h2>
                         <p>Select the desired tags, click on "Group" and put them a name. With this, you will group the tags associated to the extensions, into features. Once you finish grouping all the desired tags, click on "Next". The tags that you don't group won't be saved.</p>
                         <br />
@@ -266,9 +370,9 @@ class AgruparTags extends React.Component {
                             &nbsp;
                             <button className="btn btn-primary" onClick={this.clearTags}>Clear</button>
                             &nbsp;
-                            <Link to="/seleccionarWebs"><button className="btn btn-primary">Back</button></Link>
+                            <Link id="previousPage" to="/seleccionarWebs"><button className="btn btn-primary">Back</button></Link>
                             &nbsp;
-                            <Link to="/kanoModel"><button className="btn btn-primary">Next</button></Link>
+                            <Link id="nextPage" to="/kanoModel"><button className="btn btn-primary">Next</button></Link>
                         </div>
                     </div>
                     <div>

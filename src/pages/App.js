@@ -5,15 +5,16 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function App() {
 
+  // Variable that will be used when comparing the querys
   var previousURLs = null;
-
-  var localStorage = window.localStorage; // needed to storage the info of the previous extensions
 
   localStorage.clear();
 
+  // Launch the fetch to the get the descriptions of the extensions
+  // This descriptions will be used in the next page
   async function getDescriptions(query) {
     if (query.length !== 0) {
-      return await fetch('http://localhost:4000/extractExtensionInfo', { // the body is a JSON with all the URLs from the extensions
+      return await fetch('http://127.0.0.1:4000/extractExtensionInfo', { // the body is an array of URLs
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -24,30 +25,35 @@ function App() {
       }).then(res => res.text())
         .then(text => JSON.parse(text))
         .catch((error) => {
-          console.log(error)
+          console.log(error);
+          alert("Something went wrong, please restart the service and try again.");
         });
     }
   }
 
+  // Launch the fetch to the get the URLs of the extensions
+  // This descriptions will be used in the next page
   async function getURLs(query) {
-    return await fetch('http://localhost:4000/searchExtensions?q=' + query) // the query is formed following the 5Ws
+    return await fetch('http://127.0.0.1:4000/searchExtensions?q=' + query) // the query is formed following the 5Ws
       .then(res => res.text())
       .then(text => JSON.parse(text))
       .catch((error) => {
-        console.log(error)
+        alert("Something went wrong, please restart the service and try again.");
+        console.log(error);
       });
   }
 
-  function inputToQueryForTable() { // Gives format to the query to be displayed in the result table
-    var first = true;
+  // Gives format to the query to be displayed in the result table
+  function inputToQueryForTable() {
+    let firstTime = true;
     var query = 'Purpose: '
     var purpose = document.getElementById('purpose').value.replace(/ /g, '').split(',');
     if (purpose.length === 1) {
       query += "'" + purpose + "'";
     } else {
       purpose.forEach(element => {
-        if (first) {
-          first = false;
+        if (firstTime) {
+          firstTime = false;
           query += "'" + element;
         } else {
           query += ' OR ' + element;
@@ -56,87 +62,52 @@ function App() {
       query += "'";
     }
 
-    first = true;
-    var how = document.getElementById('how').value.replace(/ /g, '');
-    if (how !== '') {
-      how = how.split(',')
-      if (how.length === 1) {
-        query += " AND How: '" + how + "'";
-      } else {
-        how.forEach(element => {
-          if (first) {
-            first = false;
-            query += " AND How: '" + element;
-          } else {
-            query += ' OR ' + element;
-          }
-        });
-        query += "'";
+    // For each W we concata the input to the query
+    for (var i = 1; i <= 4; i++) {
+      let upperCase, lowCase;
+      let firstWord = true;
+      if (i === 1) {
+        upperCase = 'How';
+        lowCase = 'how';
+      } else if (i === 2) {
+        upperCase = 'Why';
+        lowCase = 'why';
+      } else if (i === 3) {
+        upperCase = 'What';
+        lowCase = 'what';
       }
-    }
-
-    first = true;
-    var why = document.getElementById('why').value.replace(/ /g, '');
-    if (why !== '') {
-      why = why.split(',')
-      if (why.length === 1) {
-        query += " AND Why: '" + why + "'";
-      } else {
-        why.forEach(element => {
-          if (first) {
-            first = false;
-            query += " AND Why: '" + element;
-          } else {
-            query += ' OR ' + element;
-          }
-        });
-        query += "'";
+      else if (i === 4) {
+        upperCase = 'Where';
+        lowCase = 'where';
       }
-    }
-
-    first = true;
-    var what = document.getElementById('what').value.replace(/ /g, '');
-    if (what !== '') {
-      what = what.split(',')
-      if (what.length === 1) {
-        query += " AND What: '" + what + "'";
-      } else {
-        what.forEach(element => {
-          if (first) {
-            first = false;
-            query += " AND What: '" + element;
-          } else {
-            query += ' OR ' + element;
-          }
-        });
-        query += "'";
-      }
-    }
-
-    first = true;
-    var where = document.getElementById('where').value.replace(/ /g, '');
-    if (where !== '') {
-      where = where.split(',')
-      if (where.length === 1) {
-        query += " AND Where: '" + where + "'";
-      } else {
-        where.forEach(element => {
-          if (first) {
-            first = false;
-            query += " AND Where: '" + element;
-          } else {
-            query += ' OR ' + element;
-          }
-        });
-        query += "'";
+      
+      let input = document.getElementById(lowCase).value.replace(/ /g, '');
+      if (input !== '') {
+        input = input.split(',')
+        if (input.length === 1) {
+          query += " AND " + upperCase + ": '" + input + "'";
+        } else {
+          let query2 = '';
+          input.forEach(element => {
+            if (firstWord) {
+              firstWord = false;
+              query2 += " AND " + upperCase + ": '";
+            } else {
+              query2 += ' OR ' + element;
+            }
+          });
+          query += query2;
+          query += "'";
+        }
       }
     }
     return query;
   }
 
-  function inputToQuery(purpose, input, query) { // Return the query with the format to send it to the scrapping service
+  // This method return the query with the format to send it to the scrapping service
+  function inputToQuery(purpose, input, query) {
     var first = true;
-    if (purpose) { // The purpose being the first one, have to be a little different that the other ones
+    if (purpose) { // The purpose is the first one, so has to be a bit different
       input = input.split(',');
       if (input.length === 1) {
         query += input;
@@ -153,7 +124,7 @@ function App() {
         query += ")";
       }
     } else {
-      if (input !== '') { // 
+      if (input !== '') { // The others 5w, will be concated by the same way
         input = input.split(',');
         if (input.length === 1) {
           query += ' AND (' + input + ')';
@@ -203,6 +174,7 @@ function App() {
     link.style.pointerEvents = 'auto';
   }
 
+  // Method that add the query results to the table
   function addRowsToQueryTable(tableQuery, URLs, extensionInfo) {
 
     var tbodyRef = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
@@ -252,6 +224,7 @@ function App() {
         });
       }
 
+      // Create the radiobox for selecting the query
       radiobox = document.createElement('input');
       radiobox.type = 'radio';
       radiobox.id = 'querySelected';
@@ -283,6 +256,7 @@ function App() {
       previousURLs = null;
     }
 
+    // Append the elements to the nodes
     newCell.appendChild(radiobox);
     newCell2.appendChild(newText);
     newCell3.appendChild(newText2);
@@ -337,17 +311,15 @@ function App() {
       // Get the URLs of the query, thos extension info and add them to the table
       var responseURLs = await getURLs(query);
 
+      let queryForTable = inputToQueryForTable();
       if (responseURLs != null) {
         var extensionsInfo = await getDescriptions(responseURLs);
 
         // Put the object into storage
-        localStorage.setItem(inputToQueryForTable() + 'URL', JSON.stringify(responseURLs));
-        localStorage.setItem(inputToQueryForTable() + 'INFO', JSON.stringify(extensionsInfo));
-        // Retrieve the object from storage
-        /*var retrievedObject = localStorage.getItem(inputToQueryForTable() + "INFO");
-        console.log(JSON.parse(retrievedObject));*/
+        localStorage.setItem(queryForTable + 'URL', JSON.stringify(responseURLs));
+        localStorage.setItem(queryForTable + 'INFO', JSON.stringify(extensionsInfo));
       }
-      addRowsToQueryTable(inputToQueryForTable(), responseURLs, extensionsInfo);
+      addRowsToQueryTable(queryForTable, responseURLs, extensionsInfo);
       document.getElementById('status').style.display = 'none';
       activateButtons();
     } else {
@@ -404,6 +376,7 @@ function App() {
       <div className="function-explanation">
         <h2>Extension Analysis</h2>
         <p>Everytime you do a "Search", the results will display here. You have the option to see the differences (how many new extensions the query will add, and how many extesions the query will delete) between each query.</p>
+        <p><b>WARNING: </b> In this version of the application, everytime you reload this page, the previous searches will be deleted.</p>
         <h2 className="center" id="status" style={{ display: "none" }}>Loading the query.</h2>
         <table id="resultTable" className="center-spacing">
           <thead>
