@@ -7,12 +7,26 @@ const smalltalk = require('smalltalk');
 
 class AgruparTags extends React.Component {
 
+    componentDidMount() {
+        if (JSON.parse(localStorage.getItem('stateData')) != null) {
+            this.setState({ data: JSON.parse(localStorage.getItem('stateData')) });
+        }
+        if (JSON.parse(localStorage.getItem('stateAggrupations')) != null) {
+            let aggrupationsArray = JSON.parse(localStorage.getItem('stateAggrupations'))
+            this.setState({ aggrupations: aggrupationsArray });
+            aggrupationsArray.forEach(aggrupation => {
+                this.addRow(true, aggrupation);
+            });
+        }
+    }
+
     constructor(props) {
         super(props);
         this.state = {
             data: [
             ],
-            tags: []
+            tags: [],
+            aggrupations: []
         };
         this.createAggrupation = this.createAggrupation.bind(this);
         this.removeAggrupation = this.removeAggrupation.bind(this);
@@ -22,21 +36,24 @@ class AgruparTags extends React.Component {
         this.insertTagsCloudtag = this.insertTagsCloudtag.bind(this);
     }
 
+    // Get the keywords and display in the tag cloud
     async search() {
         this.disableButtons();
         var extensionsComments, featureComments, keywords, descriptions = null;
+        // Get the comments
         var commentsURLs = JSON.parse(localStorage.getItem('commentsURLs'));
         if (commentsURLs != null) {
             extensionsComments = await this.getComments(commentsURLs);
         }
+        // Get the featured comments
         if (extensionsComments != null) {
             featureComments = await this.getFeaturedComments(extensionsComments);
         }
+        // Get the keywords and insert them into the tag cloud
         if (featureComments != null) {
             descriptions = JSON.parse(localStorage.getItem('descriptions'));
             let quantity = document.getElementById("quantityInput").value;
             keywords = await this.extractTopics(featureComments, descriptions, quantity);
-            console.log(keywords);
             this.insertTagsCloudtag(keywords);
         }
         this.activateButtons();
@@ -49,14 +66,14 @@ class AgruparTags extends React.Component {
             rKeyword['count'] = keyword.rake;
             return rKeyword;
         })
-        console.log(keywords);
         this.setState({ data: keywords });
     }
 
     // Launch the fetch to the get the comments of the extensions
-    // This comments will be used in next steps
+    // This comments will be used in next 
     async getComments(query) {
-        return await fetch('http://127.0.0.1:4000/extractComments', { // the body is an array with all the URLs from the selected extensions
+        let scrappingServiceIP = JSON.parse(localStorage.getItem('servicesIPs'))['SCRAPPING-SERVICE'];
+        return await fetch('http://' + scrappingServiceIP + '/extractComments', { // the body is an array with all the URLs from the selected extensions
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -89,8 +106,9 @@ class AgruparTags extends React.Component {
 
         // Flat the array to get all the comments in one array [comments]
         extensionsComments = extensionsComments.flat(1);
-
-        let features = await fetch('http://127.0.0.1:8080/127.0.0.1:9651/hitec/classify/domain/google-play-reviews/', {
+        let featureDetectionIP = JSON.parse(localStorage.getItem('servicesIPs'))['FEATURE-DETECTION-SERVICE'];
+        let corsProxyIP = JSON.parse(localStorage.getItem('servicesIPs'))['CORS-ANYWHERE'];
+        let features = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/hitec/classify/domain/google-play-reviews/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -104,7 +122,9 @@ class AgruparTags extends React.Component {
 
         // Filter and remove all the comments that aren't a feature request
         // or an bug report
-        features = features.filter(comment => comment['cluster_is_feature_request'] === true || comment['cluster_is_bug_report'] === true);
+        if (features != null) {
+            features = features.filter(comment => comment['cluster_is_feature_request'] === true || comment['cluster_is_bug_report'] === true);
+        }
 
         if (features.length > 0) {
             return features
@@ -141,7 +161,10 @@ class AgruparTags extends React.Component {
         })
         featureComments = featureComments.concat(descriptions);
 
-        let commentsKeywords = await fetch('http://127.0.0.1:8080/127.0.0.1:8000/topics?items=' + quantity, {
+        // Get the keywords from the comments
+        let featureDetectionIP = JSON.parse(localStorage.getItem('servicesIPs'))['KEYWORD-EXTRACTION-SERVICE'];
+        let corsProxyIP = JSON.parse(localStorage.getItem('servicesIPs'))['CORS-ANYWHERE'];
+        let commentsKeywords = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/topics?items=' + quantity, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -185,11 +208,13 @@ class AgruparTags extends React.Component {
                 .confirm('Delete all aggrupations', 'You are going to delete ' + aggrupations.length + ' aggrupations. Are you sure?')
                 .then(() => {
                     var table = document.getElementById('aggrupationTable');
-                    aggrupations.forEach(aggrupation => {
-                        localStorage.removeItem(aggrupation);
-                        this.setState({ data: this.state.data.concat(this.state[aggrupation]) });
-                        delete this.state[aggrupation];
+                    let item = [];
+                    aggrupations.forEach(aggrupationName => {
+                        localStorage.removeItem(aggrupationName);
+                        item.push(this.state.aggrupations.filter(aggrupation => aggrupation.name === aggrupationName)[0].groups);
                     });
+                    this.setState({ data: this.state.data.concat(item.flat(1)) });
+                    this.setState({ aggrupations: [] });
                     table.querySelector('tbody').innerHTML = '';
                     localStorage.removeItem('aggrupations');
                 })
@@ -209,15 +234,21 @@ class AgruparTags extends React.Component {
                     let i = 1;
                     // For each aggrupation
                     while (i < table.rows.length) {
+                        // For each one that is selected
                         if (table.rows[i].cells[0].children[0].checked) {
                             // Remove it from the table
                             let aggrupations = JSON.parse(localStorage.getItem('aggrupations'));
                             let aggrupationName = table.rows[i].cells[1].innerHTML;
-                            aggrupations = aggrupations.filter(val => val !== aggrupationName);
+                            table.deleteRow(i);
                             // Remove it from the local storage
+                            aggrupations = aggrupations.filter(val => val !== aggrupationName);
                             localStorage.setItem('aggrupations', JSON.stringify(aggrupations));
-                            this.setState({ data: this.state.data.concat(this.state[aggrupationName]) });
-                            delete this.state[aggrupationName];
+                            localStorage.removeItem(aggrupationName);
+                            // Do the changes in the state
+                            let item = this.state.aggrupations.filter(aggrupation => aggrupation.name === aggrupationName);
+                            this.setState({ data: this.state.data.concat(item[0].groups) });
+                            item = this.state.aggrupations.filter(aggrupation => aggrupation.name !== aggrupationName);
+                            this.setState({ aggrupations: item });
                         } else {
                             i++;
                         }
@@ -228,47 +259,56 @@ class AgruparTags extends React.Component {
         }
     }
 
-    addRow(aggrupationName) {
-        if (this.state.tags != null && aggrupationName != null) {
-            var tbodyRef = document.getElementById('aggrupationTable').getElementsByTagName('tbody')[0];
-
-            // Insert a row at the end of table
-            var newRow = tbodyRef.insertRow();
-
-            // Insert a cell at the end of the row
-            var newCell = newRow.insertCell();
-            var newCell2 = newRow.insertCell();
-            var newCell3 = newRow.insertCell();
-
-            var checkbox;
-            var newText;
-            var newText2;
-
-            // Create the checkbox for selecting the extensions
-            checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = 'aggrupationSelected';
-            checkbox.value = 'aggrupation';
-            checkbox.name = 'aggrupationSelected';
-
-            newText = document.createTextNode(aggrupationName);
-            let first = true;
-            let tagsString = '';
-            this.state.tags.forEach(tag => {
-                if (first) {
-                    tagsString += tag;
-                    first = false;
-                } else {
-                    tagsString += ' - ' + tag;
-                }
+    addRow(loadTable, aggrupation) {
+        let aggrupationName;
+        let keywords;
+        if (loadTable) {
+            aggrupationName = aggrupation.name;
+            keywords = aggrupation.groups.map(function (keyword) {
+                return keyword.value;
             });
-            newText2 = document.createTextNode(tagsString);
-
-            // Append the elements to the nodes
-            newCell.appendChild(checkbox);
-            newCell2.appendChild(newText);
-            newCell3.appendChild(newText2);
+        } else {
+            aggrupationName = aggrupation;
+            keywords = this.state.tags;
         }
+        var tbodyRef = document.getElementById('aggrupationTable').getElementsByTagName('tbody')[0];
+
+        // Insert a row at the end of table
+        var newRow = tbodyRef.insertRow();
+
+        // Insert a cell at the end of the row
+        var newCell = newRow.insertCell();
+        var newCell2 = newRow.insertCell();
+        var newCell3 = newRow.insertCell();
+
+        var checkbox;
+        var newText;
+        var newText2;
+
+        // Create the checkbox for selecting the extensions
+        checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'aggrupationSelected';
+        checkbox.value = 'aggrupation';
+        checkbox.name = 'aggrupationSelected';
+
+        newText = document.createTextNode(aggrupationName);
+        let first = true;
+        let tagsString = '';
+        keywords.forEach(tag => {
+            if (first) {
+                tagsString += tag;
+                first = false;
+            } else {
+                tagsString += ' - ' + tag;
+            }
+        });
+        newText2 = document.createTextNode(tagsString);
+
+        // Append the elements to the nodes
+        newCell.appendChild(checkbox);
+        newCell2.appendChild(newText);
+        newCell3.appendChild(newText2);
     }
 
     async createAggrupation() {
@@ -296,13 +336,17 @@ class AgruparTags extends React.Component {
                 // Save the agruppation name and the tags inside it
                 localStorage.setItem('aggrupations', JSON.stringify(aggrupations));
                 localStorage.setItem(aggrupationName, JSON.stringify(this.state.tags));
-                this.addRow(aggrupationName);
+                if (this.state.tags != null && aggrupationName != null) {
+                    this.addRow(false, aggrupationName);
+                }
                 let alteredData = [];
                 this.state.tags.forEach(tag => {
                     alteredData.push(this.state.data.filter(val => val['value'] === tag)[0]);
                     this.setState({ data: this.state.data.filter(val => val['value'] !== tag) });
                 });
-                this.setState({ [aggrupationName]: alteredData });
+                //this.setState({ [aggrupationName]: alteredData });
+                let item = { name: aggrupationName, groups: alteredData };
+                this.setState({ aggrupations: this.state.aggrupations.concat(item) });
                 this.clearTags();
             } else {
                 alert("Already exists an aggrupation with that name.")
@@ -320,6 +364,11 @@ class AgruparTags extends React.Component {
             document.getElementById('selectedTagsP').innerHTML += tag.value + " - ";
             this.state.tags.push(tag.value);
         }
+    }
+
+    saveState() {
+        localStorage.setItem('stateData', JSON.stringify(this.state.data));
+        localStorage.setItem('stateAggrupations', JSON.stringify(this.state.aggrupations));
     }
 
     render() {
@@ -372,7 +421,7 @@ class AgruparTags extends React.Component {
                             &nbsp;
                             <Link id="previousPage" to="/seleccionarWebs"><button className="btn btn-primary">Back</button></Link>
                             &nbsp;
-                            <Link id="nextPage" to="/kanoModel"><button className="btn btn-primary">Next</button></Link>
+                            <Link id="nextPage" to="/kanoModel" onClick={() => this.saveState()}><button className="btn btn-primary" >Next</button></Link>
                         </div>
                     </div>
                     <div>

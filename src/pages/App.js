@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
@@ -10,11 +10,32 @@ function App() {
 
   localStorage.clear();
 
+  // Get the config JSON with the IPs for the services
+  async function getConfigJSON() {
+    await fetch('config.json', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }
+    ).then(function (response) {
+      return response.json();
+    })
+      .then(function (myJson) {
+        localStorage.setItem('servicesIPs', JSON.stringify(myJson));
+      });
+  }
+
+  useEffect(() => {
+    getConfigJSON()
+  }, [])
+
   // Launch the fetch to the get the descriptions of the extensions
   // This descriptions will be used in the next page
   async function getDescriptions(query) {
+    let scrappingServiceIP = JSON.parse(localStorage.getItem('servicesIPs'))['SCRAPPING-SERVICE'];
     if (query.length !== 0) {
-      return await fetch('http://127.0.0.1:4000/extractExtensionInfo', { // the body is an array of URLs
+      return await fetch('http://' + scrappingServiceIP + '/extractExtensionInfo', { // the body is an array of URLs
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -34,7 +55,8 @@ function App() {
   // Launch the fetch to the get the URLs of the extensions
   // This descriptions will be used in the next page
   async function getURLs(query) {
-    return await fetch('http://127.0.0.1:4000/searchExtensions?q=' + query) // the query is formed following the 5Ws
+    let scrappingServiceIP = JSON.parse(localStorage.getItem('servicesIPs'))['SCRAPPING-SERVICE'];
+    return await fetch('http://' + scrappingServiceIP + '/searchExtensions?q=' + query) // the query is formed following the 5Ws
       .then(res => res.text())
       .then(text => JSON.parse(text))
       .catch((error) => {
@@ -80,7 +102,7 @@ function App() {
         upperCase = 'Where';
         lowCase = 'where';
       }
-      
+
       let input = document.getElementById(lowCase).value.replace(/ /g, '');
       if (input !== '') {
         input = input.split(',')

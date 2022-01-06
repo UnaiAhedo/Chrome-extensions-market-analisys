@@ -11,7 +11,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import './style/App.css';
 
 ReactDOM.render(
-  <BrowserRouter>
+  <BrowserRouter basename="/">
     <Route exact path="/" component={App} />
     <Route path="/seleccionarWebs" component={SeleccionarWebs} />
     <Route path="/agruparTags" component={AgruparTags}/>
