@@ -6,6 +6,7 @@ import Draggable from 'react-draggable';
 import kanoModelImage from '../images/kanoModel.jpg'
 import { TagCloud } from 'react-tagcloud';
 import { CSVLink } from 'react-csv';
+import html2canvas from 'html2canvas';
 
 class KanoModel extends React.Component {
 
@@ -52,7 +53,21 @@ class KanoModel extends React.Component {
     }
 
     doScreenshoot() {
-
+        const captureElement = document.querySelector('div.function-explanation');
+        html2canvas(captureElement)
+            .then(canvas => {
+                canvas.style.display = 'none'
+                document.body.appendChild(canvas)
+                return canvas
+            })
+            .then(canvas => {
+                const image = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream')
+                const a = document.createElement('a')
+                a.setAttribute('download', 'my-image.png')
+                a.setAttribute('href', image)
+                a.click()
+                canvas.remove()
+            })
     }
 
     prepareDownloadData() {
@@ -119,9 +134,6 @@ class KanoModel extends React.Component {
                         </div>
                         <br />
                     </div>
-                </div>
-                <div id="output"></div>
-                <div className="draggables">
                     {this.createDragabbles()}
                 </div>
             </div>
