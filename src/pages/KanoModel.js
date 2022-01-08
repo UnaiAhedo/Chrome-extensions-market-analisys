@@ -49,7 +49,10 @@ class KanoModel extends React.Component {
     }
 
     showAggrupation(tag) {
-
+        let tags = JSON.parse(localStorage.getItem(tag));
+        if (tags != null) {
+            alert(tag + " got the next tags: " + tags);
+        }
     }
 
     doScreenshoot() {
@@ -63,7 +66,7 @@ class KanoModel extends React.Component {
             .then(canvas => {
                 const image = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream')
                 const a = document.createElement('a')
-                a.setAttribute('download', 'my-image.png')
+                a.setAttribute('download', 'kano-model.png')
                 a.setAttribute('href', image)
                 a.click()
                 canvas.remove()
@@ -114,7 +117,7 @@ class KanoModel extends React.Component {
                     <div className="right-buttons">
                         <CSVLink data={this.state.downloadData}><button className="btn btn-primary" onClick={this.prepareDownloadData}>Download CSV</button></CSVLink>
                         &nbsp;
-                        <button className="btn btn-primary" onClick={this.doScreenshoot}>Download JPG</button>
+                        <button className="btn btn-primary" onClick={this.doScreenshoot}>Download PNG</button>
                         &nbsp;
                         <Link to="/agruparTags"><button className="btn btn-primary">Back</button></Link>
                         &nbsp;
@@ -129,12 +132,14 @@ class KanoModel extends React.Component {
                                 maxSize={35}
                                 tags={this.state.data}
                                 className="simple-cloud"
-                                onClick={tag => this.showAggrupation(tag)}
+                                onClick={tag => this.showAggrupation(tag.value)}
                             />
                         </div>
                         <br />
                     </div>
-                    {this.createDragabbles()}
+                    <div className='draggables'>
+                        {this.createDragabbles()}
+                    </div>
                 </div>
             </div>
         );

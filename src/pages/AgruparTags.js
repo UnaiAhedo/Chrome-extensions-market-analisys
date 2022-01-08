@@ -115,7 +115,9 @@ class AgruparTags extends React.Component {
         let features = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/hitec/classify/domain/google-play-reviews/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                "X-Requested-With": "XMLHttpRequest"
             },
             body: JSON.stringify(extensionsComments) // the body is an array of comments
         }).then(res => res.text()
@@ -171,7 +173,9 @@ class AgruparTags extends React.Component {
         let commentsKeywords = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/topics?items=' + quantity, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                "X-Requested-With": "XMLHttpRequest"
             },
             body: JSON.stringify(featureComments) // the body is an array with all the comments
         }).then(res => res.text()
