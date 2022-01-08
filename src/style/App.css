@@ -23,6 +23,13 @@ div.function-explanation {
   margin-right: 30px;
 }
 
+div.draggables {
+  text-align: left;
+  margin-left: 30px;
+  margin-right: 30px;
+  font-size: 25px;
+}
+
 .right-buttons {
   text-align: right;
   margin-left: 200px;

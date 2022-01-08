@@ -8,9 +8,11 @@ const smalltalk = require('smalltalk');
 class AgruparTags extends React.Component {
 
     componentDidMount() {
+        // Load the tags into the cloud tag
         if (JSON.parse(localStorage.getItem('stateData')) != null) {
             this.setState({ data: JSON.parse(localStorage.getItem('stateData')) });
         }
+        // Load the aggrupations into the table
         if (JSON.parse(localStorage.getItem('stateAggrupations')) != null) {
             let aggrupationsArray = JSON.parse(localStorage.getItem('stateAggrupations'))
             this.setState({ aggrupations: aggrupationsArray });
@@ -39,6 +41,7 @@ class AgruparTags extends React.Component {
     // Get the keywords and display in the tag cloud
     async search() {
         this.disableButtons();
+        document.getElementById('status').style.display = "";
         var extensionsComments, featureComments, keywords, descriptions = null;
         // Get the comments
         var commentsURLs = JSON.parse(localStorage.getItem('commentsURLs'));
@@ -57,6 +60,7 @@ class AgruparTags extends React.Component {
             this.insertTagsCloudtag(keywords);
         }
         this.activateButtons();
+        document.getElementById('status').style.display = 'none';
     }
 
     insertTagsCloudtag(keywords) {
@@ -209,10 +213,12 @@ class AgruparTags extends React.Component {
                 .then(() => {
                     var table = document.getElementById('aggrupationTable');
                     let item = [];
+                    // For each aggrupation get the {value, count} pair for the tag cloud
                     aggrupations.forEach(aggrupationName => {
-                        localStorage.removeItem(aggrupationName);
-                        item.push(this.state.aggrupations.filter(aggrupation => aggrupation.name === aggrupationName)[0].groups);
+                        localStorage.removeItem(aggrupationName['name']);
+                        item.push(this.state.aggrupations.filter(aggrupation => aggrupation.name === aggrupationName['value'])[0].groups);
                     });
+                    // Do the changes in the state
                     this.setState({ data: this.state.data.concat(item.flat(1)) });
                     this.setState({ aggrupations: [] });
                     table.querySelector('tbody').innerHTML = '';
@@ -241,7 +247,7 @@ class AgruparTags extends React.Component {
                             let aggrupationName = table.rows[i].cells[1].innerHTML;
                             table.deleteRow(i);
                             // Remove it from the local storage
-                            aggrupations = aggrupations.filter(val => val !== aggrupationName);
+                            aggrupations = aggrupations.filter(val => val['value'] !== aggrupationName);
                             localStorage.setItem('aggrupations', JSON.stringify(aggrupations));
                             localStorage.removeItem(aggrupationName);
                             // Do the changes in the state
@@ -326,26 +332,34 @@ class AgruparTags extends React.Component {
         // Check if it is possible to create the aggrupation
         if (aggrupationName !== '' && this.state.tags !== 0) {
             aggrupations = JSON.parse(localStorage.getItem('aggrupations'));
-            if (aggrupations == null || !aggrupations.includes(aggrupationName)) {
+            if (aggrupations == null || aggrupationName in aggrupations) {
+                // Add the aggrupation to the table
+                if (this.state.tags != null && aggrupationName != null) {
+                    this.addRow(false, aggrupationName);
+                }
+                // For each tag selected push it in an array
+                let alteredData = [];
+                let value = 0;
+                this.state.tags.forEach(tag => {
+                    alteredData.push(this.state.data.filter(val => val['value'] === tag)[0]);
+                    value += this.state.data.filter(val => val['value'] === tag)[0].count;
+                    this.setState({ data: this.state.data.filter(val => val['value'] !== tag) });
+                });
+                // Aggrupation value = sum(tags values)
+                let item2 = { value: aggrupationName, name: aggrupationName, count: value };
+                // Create the aggrupations array or push in case of existing
                 if (aggrupations != null) {
-                    aggrupations.push(aggrupationName);
+                    aggrupations.push(item2);
                 } else {
                     aggrupations = [];
-                    aggrupations.push(aggrupationName);
+                    aggrupations.push(item2);
                 }
                 // Save the agruppation name and the tags inside it
                 localStorage.setItem('aggrupations', JSON.stringify(aggrupations));
                 localStorage.setItem(aggrupationName, JSON.stringify(this.state.tags));
-                if (this.state.tags != null && aggrupationName != null) {
-                    this.addRow(false, aggrupationName);
-                }
-                let alteredData = [];
-                this.state.tags.forEach(tag => {
-                    alteredData.push(this.state.data.filter(val => val['value'] === tag)[0]);
-                    this.setState({ data: this.state.data.filter(val => val['value'] !== tag) });
-                });
-                //this.setState({ [aggrupationName]: alteredData });
+                // Name: name of the aggrupation - Groups: tags in that aggrupation
                 let item = { name: aggrupationName, groups: alteredData };
+                // Save the changes into the state to update the cloud tag
                 this.setState({ aggrupations: this.state.aggrupations.concat(item) });
                 this.clearTags();
             } else {
@@ -394,6 +408,7 @@ class AgruparTags extends React.Component {
                         <input id='quantityInput' type='number' defaultValue='15' min='15' />
                         &nbsp;
                         <button className="btn btn-primary" onClick={this.search}>Search keywords</button>
+                        <h2 className="center" id="status" style={{ display: "none" }}>Loading the keywords.</h2>
                     </div>
                     <br />
                     <div>
