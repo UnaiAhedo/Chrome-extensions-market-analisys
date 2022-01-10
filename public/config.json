@@ -1,8 +1,0 @@
-
-{    
-    "_comment": "Even using the services in localhost, to avoid errors, is necessary to use the IP of the machine allocating it",
-    "CORS-ANYWHERE": "192.168.0.19:5000",
-    "SCRAPPING-SERVICE": "192.168.0.19:4000",
-    "FEATURE-DETECTION-SERVICE": "192.168.0.19:9651",
-    "KEYWORD-EXTRACTION-SERVICE": "192.168.0.19:8000"
-}

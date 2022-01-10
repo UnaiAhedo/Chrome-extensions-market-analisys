@@ -4,6 +4,7 @@ import SearchWebs from './SearchWebs';
 import SeleccionarWebs from './SeleccionarWebs';
 import AgruparTags from './AgruparTags';
 import KanoModel from './KanoModel';
+import GetIPs from './GetIPs';
 
 class App extends Component {
   render() {
@@ -14,6 +15,7 @@ class App extends Component {
           <Route path="/seleccionarWebs" component={SeleccionarWebs} />
           <Route path="/agruparTags" component={AgruparTags} />
           <Route path="/kanoModel" component={KanoModel} />
+          <Route path="/getIPs" component={GetIPs} />
         </HashRouter>
       </div>
     );

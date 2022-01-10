@@ -76,7 +76,7 @@ class AgruparTags extends React.Component {
     // Launch the fetch to the get the comments of the extensions
     // This comments will be used in next 
     async getComments(query) {
-        let scrappingServiceIP = JSON.parse(localStorage.getItem('servicesIPs'))['SCRAPPING-SERVICE'];
+        let scrappingServiceIP = localStorage.getItem('SCRAPPING-SERVICE');
         return await fetch('http://' + scrappingServiceIP + '/extractComments', { // the body is an array with all the URLs from the selected extensions
             method: 'POST',
             headers: {
@@ -110,8 +110,8 @@ class AgruparTags extends React.Component {
 
         // Flat the array to get all the comments in one array [comments]
         extensionsComments = extensionsComments.flat(1);
-        let featureDetectionIP = JSON.parse(localStorage.getItem('servicesIPs'))['FEATURE-DETECTION-SERVICE'];
-        let corsProxyIP = JSON.parse(localStorage.getItem('servicesIPs'))['CORS-ANYWHERE'];
+        let featureDetectionIP = localStorage.getItem('FEATURE-DETECTION-SERVICE');
+        let corsProxyIP = localStorage.getItem('CORS-ANYWHERE');
         let features = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/hitec/classify/domain/google-play-reviews/', {
             method: 'POST',
             headers: {
@@ -168,8 +168,8 @@ class AgruparTags extends React.Component {
         featureComments = featureComments.concat(descriptions);
 
         // Get the keywords from the comments
-        let featureDetectionIP = JSON.parse(localStorage.getItem('servicesIPs'))['KEYWORD-EXTRACTION-SERVICE'];
-        let corsProxyIP = JSON.parse(localStorage.getItem('servicesIPs'))['CORS-ANYWHERE'];
+        let featureDetectionIP = localStorage.getItem('KEYWORD-EXTRACTION-SERVICE');
+        let corsProxyIP = localStorage.getItem('CORS-ANYWHERE');
         let commentsKeywords = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/topics?items=' + quantity, {
             method: 'POST',
             headers: {

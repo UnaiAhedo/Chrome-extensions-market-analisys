@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
@@ -8,32 +8,31 @@ function SearchWebs() {
   // Variable that will be used when comparing the querys
   var previousURLs = null;
 
-  localStorage.clear();
+  saveIPs();
 
   // Get the config JSON with the IPs for the services
-  async function getConfigJSON() {
-    await fetch('config.json', {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    }
-    ).then(function (response) {
-      return response.json();
-    })
-      .then(function (myJson) {
-        localStorage.setItem('servicesIPs', JSON.stringify(myJson));
-      });
-  }
+  function saveIPs() {
+    if (localStorage.getItem('SCRAPPING-SERVICE') !== null) {
+      let scrapping = localStorage.getItem('SCRAPPING-SERVICE');
+      let corsAnywhere = localStorage.getItem('CORS-ANYWHERE');
+      let featureDetection = localStorage.getItem('FEATURE-DETECTION-SERVICE');
+      let keywordExtract = localStorage.getItem('KEYWORD-EXTRACTION-SERVICE');
 
-  useEffect(() => {
-    getConfigJSON()
-  }, [])
+      localStorage.clear();
+
+      localStorage.setItem('SCRAPPING-SERVICE', scrapping);
+      localStorage.setItem('CORS-ANYWHERE', corsAnywhere);
+      localStorage.setItem('FEATURE-DETECTION-SERVICE', featureDetection);
+      localStorage.setItem('KEYWORD-EXTRACTION-SERVICE', keywordExtract);
+    } else {
+      localStorage.clear();
+    }
+  }
 
   // Launch the fetch to the get the descriptions of the extensions
   // This descriptions will be used in the next page
   async function getDescriptions(query) {
-    let scrappingServiceIP = JSON.parse(localStorage.getItem('servicesIPs'))['SCRAPPING-SERVICE'];
+    let scrappingServiceIP = localStorage.getItem('SCRAPPING-SERVICE');
     if (query.length !== 0) {
       return await fetch('http://' + scrappingServiceIP + '/extractExtensionInfo', { // the body is an array of URLs
         method: 'POST',
@@ -52,10 +51,11 @@ function SearchWebs() {
     }
   }
 
+
   // Launch the fetch to the get the URLs of the extensions
   // This descriptions will be used in the next page
   async function getURLs(query) {
-    let scrappingServiceIP = JSON.parse(localStorage.getItem('servicesIPs'))['SCRAPPING-SERVICE'];
+    let scrappingServiceIP = localStorage.getItem('SCRAPPING-SERVICE');
     return await fetch('http://' + scrappingServiceIP + '/searchExtensions?q=' + query) // the query is formed following the 5Ws
       .then(res => res.text())
       .then(text => JSON.parse(text))
@@ -329,22 +329,30 @@ function SearchWebs() {
       query += '?_category=extensions?hl=en';
 
       document.getElementById('status').style.display = "";
+      document.getElementById('status').innerText = "Loading the query.";
 
       // Get the URLs of the query, thos extension info and add them to the table
-      var responseURLs = await getURLs(query);
+      let scrapping = localStorage.getItem('SCRAPPING-SERVICE');
+      if (scrapping != null) {
+        var responseURLs = await getURLs(query);
 
-      let queryForTable = inputToQueryForTable();
-      if (responseURLs != null) {
-        var extensionsInfo = await getDescriptions(responseURLs);
+        let queryForTable = inputToQueryForTable();
+        if (responseURLs != null) {
+          var extensionsInfo = await getDescriptions(responseURLs);
 
-        // Put the object into storage
-        localStorage.setItem(queryForTable + 'URL', JSON.stringify(responseURLs));
-        localStorage.setItem(queryForTable + 'INFO', JSON.stringify(extensionsInfo));
+          // Put the object into storage
+          localStorage.setItem(queryForTable + 'URL', JSON.stringify(responseURLs));
+          localStorage.setItem(queryForTable + 'INFO', JSON.stringify(extensionsInfo));
+        }
+        addRowsToQueryTable(queryForTable, responseURLs, extensionsInfo);
+        document.getElementById('status').style.display = 'none';
+      } else {
+        document.getElementById('status').style.display = 'none';
+        alert('Introduce the services IPs before searching.')
       }
-      addRowsToQueryTable(queryForTable, responseURLs, extensionsInfo);
-      document.getElementById('status').style.display = 'none';
       activateButtons();
     } else {
+      document.getElementById('status').style.display = "";
       document.getElementById('status').innerText = "Purpose can't be empty.";
     }
   }
@@ -363,6 +371,14 @@ function SearchWebs() {
           <Breadcrumb.Item>Tags aggrupation</Breadcrumb.Item>
           <Breadcrumb.Item>Kano model</Breadcrumb.Item>
         </Breadcrumb>
+      </div>
+      <div className="function-explanation">
+        <h2>Configuration</h2>
+        <p>It's necessary to introduce the IPs of the services, for that click in the next button.</p>
+        <Link to="/getIPs"><button className="btn btn-primary">Introduce IPs</button></Link>
+        <br />
+        <br />
+        <br />
       </div>
       <div className="function-explanation">
         <h2>Extension Analysis</h2>
