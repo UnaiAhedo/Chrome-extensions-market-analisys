@@ -19,6 +19,11 @@ function GetIPs() {
             document.getElementById('scrapping').value = scrapping;
             document.getElementById('features').value = features;
             document.getElementById('keywords').value = keywords;
+        }else{
+            document.getElementById('cors').value = '0.0.0.0:5000';
+            document.getElementById('scrapping').value = '0.0.0.0:4000';
+            document.getElementById('features').value = '0.0.0.0:9651';
+            document.getElementById('keywords').value = '0.0.0.0:8000';
         }
     }
 
@@ -56,11 +61,11 @@ function GetIPs() {
                 </ul>
                 <p><b>Cors-anywhere:</b> &nbsp; <input id='cors' style={{ width: '250px' }} /></p>
                 <br />
-                <p><b>Scrapping service:</b> &nbsp; <input id='scrapping' defaultValue='0.0.0.0:4000' style={{ width: '250px' }} /></p>
+                <p><b>Scrapping service:</b> &nbsp; <input id='scrapping' style={{ width: '250px' }} /></p>
                 <br />
-                <p><b>Feature detection:</b> &nbsp; <input id='features' defaultValue='0.0.0.0:9651' style={{ width: '250px' }} /></p>
+                <p><b>Feature detection:</b> &nbsp; <input id='features' style={{ width: '250px' }} /></p>
                 <br />
-                <p><b>Keyword extraction:</b> &nbsp; <input id='keywords' defaultValue='0.0.0.0:8000' style={{ width: '250px' }} /></p>
+                <p><b>Keyword extraction:</b> &nbsp; <input id='keywords' style={{ width: '250px' }} /></p>
                 <br />
                 <br />
                 <button className="btn btn-primary" onClick={saveIPs}>Save IPs</button>
