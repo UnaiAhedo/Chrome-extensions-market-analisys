@@ -47,6 +47,7 @@ class AgruparTags extends React.Component {
         var commentsURLs = JSON.parse(localStorage.getItem('commentsURLs'));
         if (commentsURLs != null) {
             extensionsComments = await this.getComments(commentsURLs);
+            console.log(extensionsComments);
         }
         // Get the featured comments
         if (extensionsComments != null) {
@@ -132,7 +133,7 @@ class AgruparTags extends React.Component {
             features = features.filter(comment => comment['cluster_is_feature_request'] === true || comment['cluster_is_bug_report'] === true);
         }
 
-        if (features.length > 0) {
+        if (features != null) {
             return features
         } else {
             return null;
@@ -336,7 +337,13 @@ class AgruparTags extends React.Component {
         // Check if it is possible to create the aggrupation
         if (aggrupationName !== '' && this.state.tags !== 0) {
             aggrupations = JSON.parse(localStorage.getItem('aggrupations'));
-            if (aggrupations == null || aggrupationName in aggrupations) {
+            let aux = [];
+            if (aggrupations != null) {
+                aux = aggrupations.map(function (aggrupation) {
+                    return aggrupation.name;
+                })
+            }
+            if (aggrupations == null || !aux.includes(aggrupationName)) {
                 // Add the aggrupation to the table
                 if (this.state.tags != null && aggrupationName != null) {
                     this.addRow(false, aggrupationName);
