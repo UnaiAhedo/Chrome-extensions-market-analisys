@@ -47,7 +47,6 @@ class AgruparTags extends React.Component {
         var commentsURLs = JSON.parse(localStorage.getItem('commentsURLs'));
         if (commentsURLs != null) {
             extensionsComments = await this.getComments(commentsURLs);
-            console.log(extensionsComments);
         }
         // Get the featured comments
         if (extensionsComments != null) {
@@ -111,20 +110,23 @@ class AgruparTags extends React.Component {
 
         // Flat the array to get all the comments in one array [comments]
         extensionsComments = extensionsComments.flat(1);
+
+        console.log(extensionsComments);
+
         let featureDetectionIP = localStorage.getItem('FEATURE-DETECTION-SERVICE');
         let corsProxyIP = localStorage.getItem('CORS-ANYWHERE');
         let features = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/hitec/classify/domain/google-play-reviews/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                "X-Requested-With": "XMLHttpRequest"
+                'Accept': 'application/json'
             },
             body: JSON.stringify(extensionsComments) // the body is an array of comments
         }).then(res => res.text()
             .then(text => JSON.parse(text)))
             .catch((error) => {
                 console.log(error);
+                alert("Something went wrong, please try again.")
             });
 
         // Filter and remove all the comments that aren't a feature request
