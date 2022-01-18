@@ -99,8 +99,9 @@ class AgruparTags extends React.Component {
         extensionsComments = extensionsComments.map(function (extensionsComments) {
             return extensionsComments.map(function (comment) {
                 var rComment = {};
-                rComment['review_id'] = comment.author;
-                rComment['package_name'] = '';
+                rComment['author'] = comment.author;
+                rComment['review_id'] = 'ri';
+                rComment['package_name'] = 'extension';
                 rComment['rating'] = comment.stars;
                 rComment['title'] = '';
                 rComment['body'] = comment.text;
@@ -108,10 +109,8 @@ class AgruparTags extends React.Component {
             })
         })
 
-        // Flat the array to get all the comments in one array [comments]
+        // Flat the array to get all the comments in one array [comments]     
         extensionsComments = extensionsComments.flat(1);
-
-        console.log(extensionsComments);
 
         let featureDetectionIP = localStorage.getItem('FEATURE-DETECTION-SERVICE');
         let corsProxyIP = localStorage.getItem('CORS-ANYWHERE');
@@ -119,7 +118,8 @@ class AgruparTags extends React.Component {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                "X-Requested-With": "XMLHttpRequest"
             },
             body: JSON.stringify(extensionsComments) // the body is an array of comments
         }).then(res => res.text()
