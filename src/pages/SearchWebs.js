@@ -329,15 +329,16 @@ function SearchWebs() {
       query += '?_category=extensions?hl=en';
 
       document.getElementById('status').style.display = "";
-      document.getElementById('status').innerText = "Loading the query.";
+      document.getElementById('status').innerText = 'Extracting the extensions URLs.';
 
       // Get the URLs of the query, thos extension info and add them to the table
       let scrapping = localStorage.getItem('SCRAPPING-SERVICE');
       if (scrapping != null) {
-        var responseURLs = await getURLs(query);
-
         let queryForTable = inputToQueryForTable();
+        var responseURLs = await getURLs(query);
         if (responseURLs != null) {
+          alert('Extracted a total of:  ' + responseURLs.length + '  extensions. Proceding to extract the information, this will take a bit.');
+          document.getElementById('status').innerHTML = 'Extracting the extensions information.';
           var extensionsInfo = await getDescriptions(responseURLs);
 
           // Put the object into storage
@@ -346,8 +347,10 @@ function SearchWebs() {
         }
         addRowsToQueryTable(queryForTable, responseURLs, extensionsInfo);
         document.getElementById('status').style.display = 'none';
+        document.getElementById('status').innerHTML = '';
       } else {
         document.getElementById('status').style.display = 'none';
+        document.getElementById('status').innerHTML = '';
         alert('Introduce the services IPs before searching.')
       }
       activateButtons();
@@ -405,6 +408,7 @@ function SearchWebs() {
         </tbody>
       </table>
       <br />
+      <h2 className="center" id="status" style={{ display: "none" }}>.</h2>
       <div className="right-buttons">
         <button className="btn btn-primary" onClick={clearInputs}>Clear</button>
         &nbsp;
@@ -415,7 +419,6 @@ function SearchWebs() {
         <h2>Extension Analysis</h2>
         <p>Everytime you do a "Search", the results will display here. You have the option to see the differences (how many new extensions the query will add, and how many extesions the query will delete) between each query.</p>
         <p><b>WARNING: </b> In this version of the application, everytime you reload this page, the previous searches will be deleted.</p>
-        <h2 className="center" id="status" style={{ display: "none" }}>Loading the query.</h2>
         <table id="resultTable" className="center-spacing">
           <thead>
             <tr>

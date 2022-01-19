@@ -41,7 +41,9 @@ class AgruparTags extends React.Component {
     // Get the keywords and display in the tag cloud
     async search() {
         this.disableButtons();
-        document.getElementById('status').style.display = "";
+        alert('This process will take some time. Please be patient.');
+        document.getElementById('status').innerHTML = 'Extracting the extensions comments.';
+        document.getElementById('status').style.display = '';
         var extensionsComments, featureComments, keywords, descriptions = null;
         // Get the comments
         var commentsURLs = JSON.parse(localStorage.getItem('commentsURLs'));
@@ -54,6 +56,8 @@ class AgruparTags extends React.Component {
         }
         // Get the keywords and insert them into the tag cloud
         if (featureComments != null) {
+            alert('Extracting the keywords from ' + featureComments.length + ' comments and the extensions description.')
+            document.getElementById('status').innerHTML = 'Extracting the keywords.';
             descriptions = JSON.parse(localStorage.getItem('descriptions'));
             let quantity = document.getElementById("quantityInput").value;
             keywords = await this.extractTopics(featureComments, descriptions, quantity);
@@ -112,6 +116,9 @@ class AgruparTags extends React.Component {
         // Flat the array to get all the comments in one array [comments]     
         extensionsComments = extensionsComments.flat(1);
 
+        alert('The feature filter will start now. Searching from: ' + extensionsComments.length + ' comments.');
+        document.getElementById('status').innerHTML = 'Filtering the feature request comments.';
+        
         let featureDetectionIP = localStorage.getItem('FEATURE-DETECTION-SERVICE');
         let corsProxyIP = localStorage.getItem('CORS-ANYWHERE');
         let features = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/hitec/classify/domain/google-play-reviews/', {
@@ -421,7 +428,7 @@ class AgruparTags extends React.Component {
                         <input id='quantityInput' type='number' defaultValue='15' min='15' />
                         &nbsp;
                         <button className="btn btn-primary" onClick={this.search}>Search keywords</button>
-                        <h2 className="center" id="status" style={{ display: "none" }}>Loading the keywords.</h2>
+                        <h2 className="center" id="status" style={{ display: "none" }}>.</h2>
                     </div>
                     <br />
                     <div>
