@@ -329,7 +329,7 @@ function SearchWebs() {
       query += '?_category=extensions?hl=en';
 
       document.getElementById('status').style.display = "";
-      document.getElementById('status').innerText = 'Extracting the extensions URLs.';
+      document.getElementById('status').innerText = 'Extracting the extension/s URL/s.';
 
       // Get the URLs of the query, thos extension info and add them to the table
       let scrapping = localStorage.getItem('SCRAPPING-SERVICE');
@@ -337,8 +337,8 @@ function SearchWebs() {
         let queryForTable = inputToQueryForTable();
         var responseURLs = await getURLs(query);
         if (responseURLs != null) {
-          alert('Extracted a total of:  ' + responseURLs.length + '  extensions. Proceding to extract the information, this will take a bit.');
-          document.getElementById('status').innerHTML = 'Extracting the extensions information.';
+          alert('Extracted a total of:  ' + responseURLs.length + '  extension/s. Proceding to extract the information, this will take a bit.');
+          document.getElementById('status').innerHTML = 'Extracting the extension/s information.';
           var extensionsInfo = await getDescriptions(responseURLs);
 
           // Put the object into storage

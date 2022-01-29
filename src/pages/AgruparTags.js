@@ -42,7 +42,7 @@ class AgruparTags extends React.Component {
     async search() {
         this.disableButtons();
         alert('This process will take some time. Please be patient.');
-        document.getElementById('status').innerHTML = 'Extracting the extensions comments.';
+        document.getElementById('status').innerHTML = 'Extracting the extension/s comments.';
         document.getElementById('status').style.display = '';
         var extensionsComments, featureComments, keywords, descriptions = null;
         // Get the comments
@@ -56,7 +56,7 @@ class AgruparTags extends React.Component {
         }
         // Get the keywords and insert them into the tag cloud
         if (featureComments != null) {
-            alert('Extracting the keywords from ' + featureComments.length + ' comments and the extensions description.')
+            alert('Extracting the keywords from ' + featureComments.length + ' comment/s and the extension/s description.')
             document.getElementById('status').innerHTML = 'Extracting the keywords.';
             descriptions = JSON.parse(localStorage.getItem('descriptions'));
             let quantity = document.getElementById("quantityInput").value;
@@ -116,9 +116,13 @@ class AgruparTags extends React.Component {
         // Flat the array to get all the comments in one array [comments]     
         extensionsComments = extensionsComments.flat(1);
 
-        alert('The feature filter will start now. Searching from: ' + extensionsComments.length + ' comments.');
-        document.getElementById('status').innerHTML = 'Filtering the feature request comments.';
-        
+        // The next lines is the parch for make this woking because of the bug
+        extensionsComments = extensionsComments.sort((a, b) => 0.5 - Math.random());
+        extensionsComments = extensionsComments.slice(0, 65);
+
+        alert('The feature filter will start now. Searching from: ' + extensionsComments.length + ' comment/s.');
+        document.getElementById('status').innerHTML = 'Filtering the feature request comment/s.';
+
         let featureDetectionIP = localStorage.getItem('FEATURE-DETECTION-SERVICE');
         let corsProxyIP = localStorage.getItem('CORS-ANYWHERE');
         let features = await fetch('http://' + corsProxyIP + '/' + featureDetectionIP + '/hitec/classify/domain/google-play-reviews/', {
